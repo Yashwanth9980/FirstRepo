@@ -1,0 +1,965 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Calculus Quest</title>
+<style>
+  :root {
+    --bg: #f6f4ef;
+    --panel: #ffffff;
+    --ink: #1f2430;
+    --muted: #5f6675;
+    --line: #e2ded4;
+    --grid: #ece8de;
+    --axis: #8a8f9c;
+    --accent: #3b5bdb;
+    --accent-ink: #ffffff;
+    --good: #2b8a3e;
+    --good-bg: #e6f4ea;
+    --bad: #c92a2a;
+    --bad-bg: #fdecec;
+    --warn-bg: #fff6dd;
+    --c1: #3b5bdb;
+    --c2: #e8590c;
+    --c3: #2b8a3e;
+    --c4: #ae3ec9;
+    --shade: #3b5bdb;
+    --locked: #b9b4a8;
+    --radius: 14px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #15171c; --panel: #1f2229; --ink: #eceef3; --muted: #a2a8b6; --line: #333844;
+      --grid: #2a2e37; --axis: #7d8494; --accent: #7b93ff; --accent-ink: #11131a;
+      --good: #69db7c; --good-bg: #1d3324; --bad: #ff8787; --bad-bg: #3a1f22; --warn-bg: #3a3320;
+      --c1: #7b93ff; --c2: #ff922b; --c3: #69db7c; --c4: #da77f2; --shade: #7b93ff; --locked: #555b68;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #15171c; --panel: #1f2229; --ink: #eceef3; --muted: #a2a8b6; --line: #333844;
+    --grid: #2a2e37; --axis: #7d8494; --accent: #7b93ff; --accent-ink: #11131a;
+    --good: #69db7c; --good-bg: #1d3324; --bad: #ff8787; --bad-bg: #3a1f22; --warn-bg: #3a3320;
+    --c1: #7b93ff; --c2: #ff922b; --c3: #69db7c; --c4: #da77f2; --shade: #7b93ff; --locked: #555b68;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--bg); color: var(--ink);
+    font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    min-height: 100vh;
+  }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 20px 16px 48px; }
+  header.top { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px; flex-wrap: wrap; }
+  .brand { font-weight: 800; font-size: 1.35rem; letter-spacing: -.01em; cursor: pointer; }
+  .brand span { color: var(--accent); }
+  .xp-pill { background: var(--panel); border: 1px solid var(--line); border-radius: 999px; padding: 4px 12px; font-weight: 600; font-size: .9rem; }
+  .screen { display: none; }
+  .screen.active { display: block; animation: fade .25s ease; }
+  @keyframes fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; }
+  h1, h2, h3 { line-height: 1.2; margin: 0 0 .5em; }
+  h1 { font-size: 1.7rem; }
+  h2 { font-size: 1.3rem; }
+  p { margin: 0 0 .8em; }
+  .muted { color: var(--muted); }
+  .m { font-family: "Cambria Math", "STIX Two Math", "Latin Modern Math", Georgia, serif; white-space: nowrap; }
+  .lim { display: inline-flex; flex-direction: column; align-items: center; line-height: 1; vertical-align: middle; margin-right: .25em; }
+  .lim small { font-size: .62em; margin-top: 2px; }
+  .int { display: inline-flex; align-items: center; vertical-align: middle; }
+  .int .bounds { display: inline-flex; flex-direction: column; font-size: .62em; line-height: 1.1; margin: 0 .2em 0 .05em; }
+  .int .sign { font-size: 1.35em; }
+
+  /* Map */
+  .hero { margin-bottom: 18px; }
+  .hero p { color: var(--muted); max-width: 60ch; }
+  .worlds { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; }
+  .world {
+    text-align: left; border: 1px solid var(--line); background: var(--panel); color: var(--ink);
+    border-radius: var(--radius); padding: 16px; cursor: pointer; font: inherit;
+    transition: transform .12s ease, border-color .12s ease;
+    display: flex; flex-direction: column; gap: 6px; min-height: 150px;
+  }
+  .world:hover:not(:disabled) { transform: translateY(-2px); border-color: var(--accent); }
+  .world:disabled { cursor: not-allowed; opacity: .55; }
+  .world .icon { font-size: 1.9rem; line-height: 1; }
+  .world .name { font-weight: 700; font-size: 1.08rem; }
+  .world .tag { color: var(--muted); font-size: .9rem; flex: 1; }
+  .world .stars { letter-spacing: 2px; font-size: 1.05rem; }
+  .world .num { font-size: .75rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 600; }
+  .notebook { margin-top: 22px; }
+  .notebook ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+  .notebook li { border: 1px dashed var(--line); border-radius: 10px; padding: 10px 12px; }
+  .notebook li.locked { color: var(--locked); }
+  .notebook li b { display: block; font-size: .8rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .spacer { flex: 1; }
+
+  /* Buttons */
+  .btn {
+    font: inherit; font-weight: 600; border-radius: 10px; padding: 10px 18px; cursor: pointer;
+    border: 1px solid var(--line); background: var(--panel); color: var(--ink);
+  }
+  .btn:hover { border-color: var(--accent); }
+  .btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+  .btn.small { padding: 6px 12px; font-size: .9rem; }
+  .btn:focus-visible, .choice:focus-visible, .world:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+  /* Lesson */
+  .lesson h1 .icon { margin-right: .3em; }
+  .key { background: var(--warn-bg); border-radius: 10px; padding: 12px 14px; margin: 12px 0; }
+  .key b:first-child { display: block; margin-bottom: 4px; }
+  .example { border-left: 4px solid var(--accent); padding: 4px 0 4px 12px; margin: 12px 0; }
+
+  /* Play */
+  .hud { display: flex; align-items: center; gap: 14px; margin-bottom: 12px; flex-wrap: wrap; }
+  .hearts { font-size: 1.2rem; letter-spacing: 2px; }
+  .streak { font-weight: 700; }
+  .bar { flex: 1; min-width: 120px; height: 10px; border-radius: 999px; background: var(--line); overflow: hidden; }
+  .bar > div { height: 100%; width: 0; background: var(--accent); transition: width .3s ease; }
+  .qnum { font-size: .8rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 600; margin-bottom: 6px; }
+  .prompt { font-size: 1.12rem; margin-bottom: 12px; }
+  canvas.graph { width: 100%; height: 280px; display: block; border-radius: 10px; border: 1px solid var(--line); background: var(--panel); margin-bottom: 14px; touch-action: pan-y; }
+  .tbl-wrap { overflow-x: auto; margin-bottom: 14px; }
+  table.vals { border-collapse: collapse; font-variant-numeric: tabular-nums; }
+  table.vals th, table.vals td { border: 1px solid var(--line); padding: 6px 10px; text-align: center; white-space: nowrap; }
+  table.vals th { background: var(--bg); font-weight: 600; }
+  table.vals td.hl { background: var(--warn-bg); font-style: italic; }
+  .choices { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  @media (max-width: 520px) { .choices { grid-template-columns: 1fr; } canvas.graph { height: 230px; } }
+  .choice {
+    font: inherit; font-size: 1.08rem; text-align: left; padding: 12px 14px; border-radius: 10px; cursor: pointer;
+    border: 2px solid var(--line); background: var(--panel); color: var(--ink); display: flex; gap: 10px; align-items: center;
+  }
+  .choice:hover:not(:disabled) { border-color: var(--accent); }
+  .choice .k { font-size: .75rem; font-weight: 700; color: var(--muted); border: 1px solid var(--line); border-radius: 6px; padding: 0 6px; font-family: system-ui, sans-serif; }
+  .choice.right { border-color: var(--good); background: var(--good-bg); }
+  .choice.wrong { border-color: var(--bad); background: var(--bad-bg); }
+  .choice:disabled { cursor: default; }
+  .slider-box { display: grid; gap: 10px; }
+  .slider-box input[type=range] { width: 100%; accent-color: var(--accent); }
+  .slider-val { font-size: 1.2rem; }
+  .tools { display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap; align-items: center; }
+  .hint { margin-top: 12px; background: var(--warn-bg); border-radius: 10px; padding: 10px 14px; display: none; }
+  .hint.show { display: block; }
+  .feedback { margin-top: 14px; border-radius: 10px; padding: 12px 14px; display: none; }
+  .feedback.show { display: block; animation: fade .2s ease; }
+  .feedback.good { background: var(--good-bg); }
+  .feedback.bad { background: var(--bad-bg); }
+  .feedback .title { font-weight: 700; margin-bottom: 4px; }
+  .feedback .title.good { color: var(--good); }
+  .feedback .title.bad { color: var(--bad); }
+
+  /* Result */
+  .result { text-align: center; }
+  .big-stars { font-size: 3rem; letter-spacing: 6px; margin: 8px 0 12px; }
+  .result .row { justify-content: center; margin-top: 16px; }
+  .pop { animation: pop .5s ease; }
+  @keyframes pop { 0% { transform: scale(.4); opacity: 0; } 70% { transform: scale(1.15); } 100% { transform: scale(1); opacity: 1; } }
+  footer { margin-top: 28px; color: var(--muted); font-size: .85rem; text-align: center; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand" id="home" title="Back to map">∫ Calculus <span>Quest</span></div>
+    <div class="row">
+      <div class="xp-pill" id="xpPill">⭐ 0 XP</div>
+      <button class="btn small" id="themeBtn" title="Toggle light/dark">🌓</button>
+    </div>
+  </header>
+
+  <!-- MAP -->
+  <section class="screen active" id="mapScreen">
+    <div class="hero">
+      <h1>Learn calculus one world at a time 🦉</h1>
+      <p>Each world starts with a short lesson from Professor Owl, then 6 questions. You have 3 hearts per world. Clear a world to unlock the next and add a formula to your notebook.</p>
+    </div>
+    <div class="worlds" id="worlds"></div>
+    <div class="panel notebook">
+      <h2>📓 Formula Notebook</h2>
+      <ul id="notebook"></ul>
+    </div>
+    <div class="row" style="margin-top:16px">
+      <span class="spacer"></span>
+      <button class="btn small" id="resetBtn">Reset progress</button>
+    </div>
+  </section>
+
+  <!-- LESSON -->
+  <section class="screen" id="lessonScreen">
+    <div class="panel lesson">
+      <div id="lessonBody"></div>
+      <div class="row" style="margin-top:18px">
+        <button class="btn" id="lessonBack">← Map</button>
+        <span class="spacer"></span>
+        <button class="btn primary" id="lessonStart">Start the challenge →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- PLAY -->
+  <section class="screen" id="playScreen">
+    <div class="hud">
+      <button class="btn small" id="quitBtn" title="Back to map">✕</button>
+      <div class="hearts" id="hearts"></div>
+      <div class="bar"><div id="bar"></div></div>
+      <div class="streak" id="streak"></div>
+    </div>
+    <div class="panel">
+      <div class="qnum" id="qnum"></div>
+      <div class="prompt" id="prompt"></div>
+      <div class="tbl-wrap" id="tableWrap"></div>
+      <canvas class="graph" id="graph"></canvas>
+      <div id="answerArea"></div>
+      <div class="tools">
+        <button class="btn small" id="hintBtn">💡 Hint</button>
+        <span class="spacer"></span>
+        <button class="btn primary" id="nextBtn" style="display:none">Next →</button>
+      </div>
+      <div class="hint" id="hint"></div>
+      <div class="feedback" id="feedback"></div>
+    </div>
+  </section>
+
+  <!-- RESULT -->
+  <section class="screen" id="resultScreen">
+    <div class="panel result" id="resultBody"></div>
+  </section>
+
+  <footer>Tip: press <b>1–4</b> to answer and <b>Enter</b> for the next question.</footer>
+</div>
+
+<script>
+"use strict";
+/* ============ helpers ============ */
+const $ = s => document.querySelector(s);
+const rnd = (a, b) => Math.floor(Math.random() * (b - a + 1)) + a;
+const pick = a => a[Math.floor(Math.random() * a.length)];
+const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const gcd = (a, b) => { a = Math.abs(a); b = Math.abs(b); while (b) [a, b] = [b, a % b]; return a || 1; };
+// number -> display string with a real minus sign
+const N = v => {
+  if (Math.abs(v) < 1e-9) v = 0;
+  const a = Math.abs(v);
+  const s = Number.isInteger(a) ? String(a) : String(+a.toFixed(3));
+  return (v < 0 ? '−' : '') + s;
+};
+// reduced fraction p/q as text
+const frac = (p, q) => {
+  if (q < 0) { p = -p; q = -q; }
+  const g = gcd(p, q); p /= g; q /= g;
+  return q === 1 ? N(p) : (p < 0 ? '−' : '') + Math.abs(p) + '/' + q;
+};
+// polynomial from [[coef, power], ...]
+const poly = terms => {
+  let s = '';
+  for (const [c, n] of terms) {
+    if (c === 0) continue;
+    const a = Math.abs(c);
+    const body = n === 0 ? N(a) : (a === 1 ? '' : N(a)) + (n === 1 ? 'x' : 'x<sup>' + n + '</sup>');
+    s += s ? (c < 0 ? ' − ' : ' + ') + body : (c < 0 ? '−' : '') + body;
+  }
+  return s || '0';
+};
+const m = s => '<span class="m">' + s + '</span>';
+const lim = c => '<span class="lim">lim<small>x→' + c + '</small></span>';
+const integ = (a, b) => '<span class="int"><span class="sign">∫</span>' +
+  (a === undefined ? '' : '<span class="bounds"><span>' + b + '</span><span>' + a + '</span></span>') + '</span>';
+const range = (f, a, b, pad = 1) => {
+  let lo = Infinity, hi = -Infinity;
+  for (let i = 0; i <= 100; i++) { const y = f(a + (b - a) * i / 100); if (isFinite(y)) { lo = Math.min(lo, y); hi = Math.max(hi, y); } }
+  return [Math.min(lo, 0) - pad, Math.max(hi, 0) + pad];
+};
+
+// Build a multiple-choice question; wrong answers are de-duplicated against the right one.
+function mc(o) {
+  const seen = new Set([o.correct]);
+  const wrong = [];
+  for (const w of o.wrong) {
+    if (!seen.has(w)) { seen.add(w); wrong.push(w); }
+    if (wrong.length === (o.count || 4) - 1) break;
+  }
+  const choices = o.fixed ? o.fixed.slice() : shuffle([o.correct, ...wrong]);
+  return Object.assign({ type: 'mc' }, o, { choices, answer: choices.indexOf(o.correct) });
+}
+const numWrong = (ans, list) => list.concat([ans + 1, ans - 1, ans + 2, ans * 2, ans - 2]).map(N);
+
+/* ============ question generators ============ */
+
+// ---- World 1: Slope Valley
+function genSlopeTwoPoints() {
+  const [rise, run] = pick([[1,1],[2,1],[3,1],[-1,1],[-2,1],[-3,1],[1,2],[-1,2],[3,2],[-3,2],[2,3],[-2,3],[4,2],[-6,3]]);
+  const x1 = rnd(-5, 5 - run), y1 = rnd(-3, 3), x2 = x1 + run, y2 = y1 + rise;
+  const slope = rise / run;
+  const [ymin, ymax] = [Math.min(y1, y2, -1) - 2, Math.max(y1, y2, 1) + 2];
+  return mc({
+    prompt: 'A line passes through ' + m('A(' + N(x1) + ', ' + N(y1) + ')') + ' and ' + m('B(' + N(x2) + ', ' + N(y2) + ')') + '. What is its <b>slope</b>?',
+    graph: { xmin: -6, xmax: 6, ymin, ymax, items: [
+      { t: 'fn', f: x => y1 + slope * (x - x1), color: 'c1' },
+      { t: 'pt', x: x1, y: y1, label: 'A', color: 'c2' }, { t: 'pt', x: x2, y: y2, label: 'B', color: 'c2' } ],
+      reveal: [
+        { t: 'seg', x1, y1, x2, y2: y1, color: 'c3', dash: true },
+        { t: 'seg', x1: x2, y1, x2, y2, color: 'c4', dash: true },
+        { t: 'label', x: (x1 + x2) / 2, y: y1, text: 'run ' + N(run), color: 'c3', dy: rise > 0 ? 16 : -8 },
+        { t: 'label', x: x2, y: (y1 + y2) / 2, text: 'rise ' + N(rise), color: 'c4', dx: 8 } ] },
+    correct: m(frac(rise, run)),
+    wrong: [frac(run, rise), frac(-rise, run), N(rise), N(rise + run), frac(rise + 1, run)].map(m),
+    hint: 'Slope = rise ÷ run = ' + m('(y₂ − y₁) ÷ (x₂ − x₁)') + '. How far up/down do you go, and how far right?',
+    explain: 'Rise = ' + m(N(y2) + ' − ' + (y1 < 0 ? '(' + N(y1) + ')' : N(y1)) + ' = ' + N(rise)) + ', run = ' + m(N(x2) + ' − ' + (x1 < 0 ? '(' + N(x1) + ')' : N(x1)) + ' = ' + N(run)) + '. Slope = ' + m(N(rise) + ' ÷ ' + N(run) + ' = ' + frac(rise, run)) + '.'
+  });
+}
+
+function genSlopeSign() {
+  const k = pick(['pos', 'neg', 'zero']);
+  const slope = k === 'pos' ? pick([0.5, 1, 2, 3]) : k === 'neg' ? pick([-0.5, -1, -2, -3]) : 0;
+  const b = rnd(-3, 3);
+  const opts = ['Positive ↗ (uphill)', 'Negative ↘ (downhill)', 'Zero → (flat)'];
+  const correct = opts[k === 'pos' ? 0 : k === 'neg' ? 1 : 2];
+  return mc({
+    prompt: 'Walking from <b>left to right</b> along this line, is the slope positive, negative, or zero?',
+    graph: { xmin: -6, xmax: 6, ymin: -8, ymax: 8, items: [{ t: 'fn', f: x => slope * x + b, color: 'c1' }] },
+    correct, wrong: opts.filter(o => o !== correct), fixed: opts,
+    hint: 'Read the graph like a hiker walking to the right: going up, going down, or staying level?',
+    explain: 'This line is ' + m('y = ' + poly([[slope, 1], [b, 0]])) + ', so its slope is ' + m(N(slope)) + '. ' +
+      (slope > 0 ? 'Positive slope means y increases as x increases.' : slope < 0 ? 'Negative slope means y decreases as x increases.' : 'Zero slope means y never changes — a flat line.')
+  });
+}
+
+function genSlopeFromEq() {
+  const s = pick([-4, -3, -2, -1, 1, 2, 3, 4]);
+  let b = rnd(-5, 5); if (b === s || b === 0) b = s + 3;
+  return mc({
+    prompt: 'What is the slope of the line ' + m('y = ' + poly([[s, 1], [b, 0]])) + '?',
+    graph: { xmin: -6, xmax: 6, ymin: -10, ymax: 10, items: [{ t: 'fn', f: x => s * x + b, color: 'c1' }, { t: 'pt', x: 0, y: b, color: 'c2', label: '(0, ' + N(b) + ')' }] },
+    correct: m(N(s)), wrong: [N(b), N(-s), N(s + b), N(s * 2)].map(m),
+    hint: 'In ' + m('y = mx + b') + ', the number multiplied by x (m) is the slope; b is where the line crosses the y-axis.',
+    explain: 'In ' + m('y = mx + b') + ' form, m = ' + m(N(s)) + ' is the slope: every step right, y changes by ' + m(N(s)) + '. The ' + m(N(b)) + ' is just the y-intercept.'
+  });
+}
+
+function genSpeed() {
+  const t1 = rnd(0, 3), dt = pick([2, 3, 4]), v = rnd(1, 6), d1 = rnd(0, 8);
+  const t2 = t1 + dt, d2 = d1 + v * dt;
+  return mc({
+    prompt: '🚲 A cyclist is <b>' + d1 + ' m</b> from home at <b>t = ' + t1 + ' s</b> and <b>' + d2 + ' m</b> from home at <b>t = ' + t2 + ' s</b>. What is the average speed (the <i>average rate of change</i>) between those times?',
+    graph: { xmin: -0.5, xmax: t2 + 1, ymin: -2, ymax: d2 + 4, xLabel: 'time (s)', yLabel: 'distance (m)', items: [
+      { t: 'seg', x1: t1, y1: d1, x2: t2, y2: d2, color: 'c1' },
+      { t: 'pt', x: t1, y: d1, color: 'c2' }, { t: 'pt', x: t2, y: d2, color: 'c2' } ] },
+    correct: v + ' m/s',
+    wrong: [(d2 - d1) + ' m/s', frac(d2, t2) + ' m/s', dt + ' m/s', (v + 1) + ' m/s', (v * 2) + ' m/s', (v + 2) + ' m/s', (v + 3) + ' m/s'],
+    hint: 'Average rate of change = (change in distance) ÷ (change in time). That is just a slope!',
+    explain: 'Change in distance = ' + d2 + ' − ' + d1 + ' = ' + (d2 - d1) + ' m. Change in time = ' + t2 + ' − ' + t1 + ' = ' + dt + ' s. Speed = ' + (d2 - d1) + ' ÷ ' + dt + ' = <b>' + v + ' m/s</b>. Speed is the slope of the distance–time graph.'
+  });
+}
+
+// ---- World 2: Limit Lake
+function genLimitSub() {
+  const a = pick([1, 2, 3, 4, -1, -2, -3]), b = rnd(-5, 5), c = rnd(-3, 4);
+  const ans = a * c + b;
+  return mc({
+    prompt: 'Find ' + m(lim(N(c)) + '(' + poly([[a, 1], [b, 0]]) + ')'),
+    graph: { xmin: -5, xmax: 5, ymin: Math.min(ans, 0) - 6, ymax: Math.max(ans, 0) + 6, items: [
+      { t: 'fn', f: x => a * x + b, color: 'c1' }, { t: 'vline', x: c, color: 'c4' } ],
+      reveal: [{ t: 'pt', x: c, y: ans, color: 'c2', label: '(' + N(c) + ', ' + N(ans) + ')' }] },
+    correct: m(N(ans)), wrong: numWrong(ans, [a + b, c, a * c - b, b]).map(m).concat(['Does not exist']),
+    hint: 'A straight line has no gaps or jumps, so you can just plug x = ' + N(c) + ' in.',
+    explain: 'Lines are continuous, so substitute: ' + m(N(a) + '·(' + N(c) + ')' + (b < 0 ? ' − ' + N(-b) : ' + ' + N(b)) + ' = ' + N(ans)) + '.'
+  });
+}
+
+function genLimitTable() {
+  const a = rnd(1, 5);
+  const xs = [a - 0.1, a - 0.01, a - 0.001, a, a + 0.001, a + 0.01, a + 0.1];
+  return mc({
+    prompt: 'Let ' + m('f(x) = (x<sup>2</sup> − ' + a * a + ') ÷ (x − ' + a + ')') + '. Notice ' + m('f(' + a + ')') + ' is <b>0 ÷ 0</b> (undefined)! Use the table to find ' + m(lim(a) + 'f(x)') + '.',
+    table: { head: ['x', ...xs.map(x => +x.toFixed(3))], rows: [['f(x)', ...xs.map(x => x === a ? { v: 'undefined', hl: true } : (x + a).toFixed(3))]] },
+    correct: m(N(2 * a)), wrong: ['Does not exist', m(N(a)), m(N(a * a)), m('0')],
+    hint: 'Look at the numbers on both sides of x = ' + a + '. What value are they squeezing toward?',
+    explain: 'From both sides, f(x) gets closer and closer to <b>' + 2 * a + '</b> — even though f(' + a + ') itself is undefined. Algebra agrees: ' + m('(x − ' + a + ')(x + ' + a + ') ÷ (x − ' + a + ') = x + ' + a) + ' → ' + m(a + ' + ' + a + ' = ' + 2 * a) + '.'
+  });
+}
+
+function genLimitHole() {
+  const k = rnd(-2, 3), a = rnd(-2, 3), L = a + k, fa = L + pick([2, -2, 3, -3]);
+  return mc({
+    prompt: 'The graph of f has an open circle (hole) and a solid dot at ' + m('x = ' + N(a)) + '. What is ' + m(lim(N(a)) + 'f(x)') + '?',
+    graph: { xmin: -5, xmax: 5, ymin: Math.min(L, fa, 0) - 4, ymax: Math.max(L, fa, 0) + 4, items: [
+      { t: 'fn', f: x => x + k, color: 'c1' }, { t: 'hole', x: a, y: L, color: 'c1' }, { t: 'pt', x: a, y: fa, color: 'c2' } ] },
+    correct: m(N(L)), wrong: [m(N(fa)), 'Does not exist', m(N(a)), m(N(k)), m(N(L + 1))],
+    hint: 'A limit is about where the curve is <b>heading</b> as x gets close to ' + N(a) + ' — not the value exactly at ' + N(a) + '.',
+    explain: 'As x approaches ' + N(a) + ' from either side, the line heads to the hole at height <b>' + N(L) + '</b>. The solid dot says f(' + N(a) + ') = ' + N(fa) + ', but the limit ignores what happens exactly at that point.'
+  });
+}
+
+function genLimitInf() {
+  if (Math.random() < 0.5) {
+    const k = rnd(2, 9);
+    const xs = [10, 100, 1000, 10000];
+    return mc({
+      prompt: 'What happens to ' + m('f(x) = ' + k + ' ÷ x') + ' as x grows forever? Find ' + m(lim('∞') + k + '/x') + '.',
+      table: { head: ['x', ...xs], rows: [['f(x)', ...xs.map(x => +(k / x).toFixed(4))]] },
+      correct: m('0'), wrong: [m(N(k)), m('∞'), 'Does not exist'],
+      hint: 'Divide a fixed number by a gigantic number. What does it look like?',
+      explain: k + ' split into more and more pieces makes each piece tinier and tinier, so ' + m(k + '/x → 0') + '.'
+    });
+  }
+  const a = rnd(2, 6), xs = [10, 100, 1000, 10000];
+  return mc({
+    prompt: 'Find ' + m(lim('∞') + '(' + a + 'x + 1) ÷ x') + '.',
+    table: { head: ['x', ...xs], rows: [['f(x)', ...xs.map(x => +((a * x + 1) / x).toFixed(4))]] },
+    correct: m(N(a)), wrong: [m('0'), m(N(a + 1)), m('∞'), 'Does not exist'],
+    hint: 'Split it up: ' + m('(' + a + 'x + 1)/x = ' + a + ' + 1/x') + '. What does 1/x do as x grows?',
+    explain: m('(' + a + 'x + 1)/x = ' + a + ' + 1/x') + ', and ' + m('1/x → 0') + ', so the limit is <b>' + a + '</b>. The table shows it creeping toward ' + a + '.'
+  });
+}
+
+// ---- World 3: Tangent Tower
+const CURVES = [
+  { f: x => x * x, d: x => 2 * x, name: 'x<sup>2</sup>', dname: '2x' },
+  { f: x => x * x / 2, d: x => x, name: 'x<sup>2</sup>/2', dname: 'x' },
+  { f: x => 4 - x * x, d: x => -2 * x, name: '4 − x<sup>2</sup>', dname: '−2x' },
+  { f: x => x * x * x / 3, d: x => x * x, name: 'x<sup>3</sup>/3', dname: 'x<sup>2</sup>' }
+];
+
+function genTangentSlider() {
+  const c = pick(CURVES), x0 = rnd(-2, 2), y0 = c.f(x0), target = c.d(x0);
+  const [ymin, ymax] = range(c.f, -3.5, 3.5);
+  return {
+    type: 'slider', min: -6, max: 6, step: 0.5, target, x0, y0,
+    prompt: 'Drag the slider to tilt the orange line until it just <b>touches</b> ' + m('f(x) = ' + c.name) + ' at the dot ' + m('(' + N(x0) + ', ' + N(y0) + ')') + ' without cutting across. That\'s the <b>tangent line</b>!',
+    graph: { xmin: -3.5, xmax: 3.5, ymin, ymax, items: [{ t: 'fn', f: c.f, color: 'c1' }, { t: 'pt', x: x0, y: y0, color: 'c2' }],
+      reveal: [{ t: 'line', x: x0, y: y0, slope: target, color: 'c3', dash: true }] },
+    hint: 'Near the dot, the line should hug the curve. Try zooming your eyes in: if the line crosses the curve, adjust the tilt. (Bonus: the derivative of ' + m(c.name) + ' is ' + m(c.dname) + '.)',
+    explain: 'The tangent slope at ' + m('x = ' + N(x0)) + ' is ' + m('f′(' + N(x0) + ') = ' + N(target)) + '. That slope <b>is</b> the derivative — for ' + m('f(x) = ' + c.name) + ', ' + m('f′(x) = ' + c.dname) + '. (Green dashed line = exact tangent.)'
+  };
+}
+
+function genSecantTable() {
+  const a = rnd(1, 3), hs = [1, 0.1, 0.01, 0.001];
+  return mc({
+    prompt: 'For ' + m('f(x) = x<sup>2</sup>') + ', the table shows the slope of the <b>secant line</b> from ' + m('x = ' + a) + ' to ' + m('x = ' + a + ' + h') + '. As h shrinks toward 0, what is the slope of the <b>tangent</b> at ' + m('x = ' + a) + '?',
+    table: { head: ['h', ...hs], rows: [['secant slope', ...hs.map(h => +(2 * a + h).toFixed(3))]] },
+    graph: { xmin: -1, xmax: a + 2.5, ymin: -2, ymax: (a + 2) * (a + 2), items: [
+      { t: 'fn', f: x => x * x, color: 'c1' },
+      { t: 'line', x: a, y: a * a, slope: 2 * a + 1, color: 'c4', dash: true },
+      { t: 'pt', x: a, y: a * a, color: 'c2' }, { t: 'pt', x: a + 1, y: (a + 1) * (a + 1), color: 'c4', label: 'h = 1' } ],
+      reveal: [{ t: 'line', x: a, y: a * a, slope: 2 * a, color: 'c3' }] },
+    correct: m(N(2 * a)), wrong: [m(N(2 * a + 1)), m(N(a * a)), m(N(a)), 'Does not exist'],
+    hint: 'Look at the pattern in the bottom row. What number is it getting closer to?',
+    explain: 'Secant slopes ' + (2 * a + 1) + ', ' + (2 * a + 0.1) + ', ' + (2 * a + 0.01) + '… approach <b>' + 2 * a + '</b>. The derivative is literally this limit: ' + m('f′(a) = ' + lim('0').replace('x→', 'h→') + '[f(a+h) − f(a)] ÷ h') + '.'
+  });
+}
+
+function genFlatTangent() {
+  let h = rnd(-3, 3); if (h === 0) h = 2;
+  const k = rnd(-3, 2);
+  const inner = h > 0 ? '(x − ' + h + ')' : '(x + ' + (-h) + ')';
+  const ks = k === 0 ? '' : k > 0 ? ' + ' + k : ' − ' + (-k);
+  return mc({
+    prompt: 'At what x-value does ' + m('f(x) = ' + inner + '<sup>2</sup>' + ks) + ' have a <b>horizontal</b> tangent line (slope 0)?',
+    graph: { xmin: -6, xmax: 6, ymin: k - 2, ymax: k + 10, items: [{ t: 'fn', f: x => (x - h) * (x - h) + k, color: 'c1' }],
+      reveal: [{ t: 'line', x: h, y: k, slope: 0, color: 'c3', dash: true }, { t: 'pt', x: h, y: k, color: 'c2', label: '(' + N(h) + ', ' + N(k) + ')' }] },
+    correct: m('x = ' + N(h)), wrong: [m('x = ' + N(-h)), m('x = 0'), m('x = ' + N(k)), m('x = ' + N(h + 1))],
+    hint: 'A flat tangent happens at the very bottom of a valley (or top of a hill). Where is the bottom of this U?',
+    explain: 'The bottom of the valley is at ' + m('x = ' + N(h)) + '. There the curve stops going down and starts going up, so the tangent is flat: ' + m('f′(' + N(h) + ') = 0') + '.'
+  });
+}
+
+function genDerivSign() {
+  const c = pick([
+    { f: x => x * x - 2, d: x => 2 * x, name: 'x<sup>2</sup> − 2' },
+    { f: x => 3 - x * x, d: x => -2 * x, name: '3 − x<sup>2</sup>' },
+    { f: x => x * x * x / 3 - x, d: x => x * x - 1, name: 'x<sup>3</sup>/3 − x' } ]);
+  const x0 = pick([-2, -1, 0, 1, 2]), y0 = c.f(x0), d = c.d(x0);
+  const opts = ['Positive (rising)', 'Negative (falling)', 'Zero (flat)'];
+  const correct = opts[d > 0 ? 0 : d < 0 ? 1 : 2];
+  const [ymin, ymax] = range(c.f, -3, 3);
+  return mc({
+    prompt: 'For ' + m('f(x) = ' + c.name) + ', is ' + m('f′(' + N(x0) + ')') + ' positive, negative, or zero? (Look at the dot.)',
+    graph: { xmin: -3, xmax: 3, ymin: Math.max(ymin, -7), ymax: Math.min(ymax, 8), items: [{ t: 'fn', f: c.f, color: 'c1' }, { t: 'pt', x: x0, y: y0, color: 'c2' }],
+      reveal: [{ t: 'line', x: x0, y: y0, slope: d, color: 'c3', dash: true }] },
+    correct, wrong: opts.filter(o => o !== correct), fixed: opts,
+    hint: 'The derivative is the slope of the curve. At the dot, moving right, is the curve going up, down, or level?',
+    explain: 'At ' + m('x = ' + N(x0)) + ' the tangent line (green) has slope ' + m(N(d)) + '. ' + (d > 0 ? 'The curve is rising there.' : d < 0 ? 'The curve is falling there.' : 'The curve is momentarily flat there.')
+  });
+}
+
+// ---- World 4: Derivative Dojo
+function genPowerRule() {
+  const a = pick([1, 2, 3, 4, 5, -1, -2, -3]), n = rnd(2, 6);
+  return mc({
+    prompt: 'Find the derivative: ' + m('f(x) = ' + poly([[a, n]])) + '. &nbsp;' + m('f′(x) = ?'),
+    correct: m(poly([[a * n, n - 1]])),
+    wrong: [poly([[a, n - 1]]), poly([[a * n, n]]), poly([[a * n, n + 1]]), poly([[a * (n - 1), n - 1]]), poly([[n, n - 1]])].map(m),
+    hint: 'Power rule: bring the exponent down in front and multiply, then subtract 1 from the exponent. ' + m('(xⁿ)′ = n·xⁿ⁻¹'),
+    explain: 'Bring down the ' + n + ': ' + m(N(a) + ' · ' + n + ' = ' + N(a * n)) + '. New power: ' + m(n + ' − 1 = ' + (n - 1)) + '. So ' + m('f′(x) = ' + poly([[a * n, n - 1]])) + '.'
+  });
+}
+
+function genConstLinear() {
+  if (Math.random() < 0.5) {
+    const c = pick([3, 5, 7, 12, -4, -9, 100]);
+    return mc({
+      prompt: 'Find the derivative of the constant function ' + m('f(x) = ' + N(c)) + '.',
+      graph: { xmin: -5, xmax: 5, ymin: Math.min(c, 0) - 3, ymax: Math.max(c, 0) + 3, items: [{ t: 'fn', f: () => c, color: 'c1' }] },
+      correct: m('0'), wrong: [m(N(c)), m('1'), m('x'), m(N(c) + 'x')],
+      hint: 'A constant never changes. What is the slope of a flat line?',
+      explain: 'The graph of ' + m('y = ' + N(c)) + ' is a flat line — its slope is 0 everywhere. Constants always have derivative <b>0</b>.'
+    });
+  }
+  const a = pick([2, 3, 4, 5, 7, -2, -3, -6]), b = pick([1, 2, 4, 5, 8, -1, -3, -7]);
+  return mc({
+    prompt: 'Find ' + m('f′(x)') + ' for ' + m('f(x) = ' + poly([[a, 1], [b, 0]])) + '.',
+    correct: m(N(a)), wrong: [m(poly([[a, 1]])), m(N(a + b)), m(N(b)), m('1')],
+    hint: 'The derivative of a line is its slope. Also: the derivative of x is 1, and of a constant is 0.',
+    explain: m('(' + N(a) + 'x)′ = ' + N(a)) + ' and ' + m('(' + N(b) + ')′ = 0') + ', so ' + m('f′(x) = ' + N(a)) + ' — exactly the slope of the line.'
+  });
+}
+
+function genPolyDeriv() {
+  const a = pick([1, 2, 3, 4, 5, -1, -2, -3]);
+  const b = pick([1, 2, 3, 5, 6, -1, -2, -4, -5]), c = pick([1, 3, 4, 7, -2, -5, -8]);
+  return mc({
+    prompt: 'Differentiate term by term: ' + m('f(x) = ' + poly([[a, 2], [b, 1], [c, 0]])),
+    correct: m(poly([[2 * a, 1], [b, 0]])),
+    wrong: [poly([[a, 1], [b, 0]]), poly([[2 * a, 1], [b, 0], [c, 0]]), poly([[2 * a, 2], [b, 1]]), poly([[2 * a, 1]]), poly([[2 * a, 1], [b + c, 0]])].map(m),
+    hint: 'Do each piece separately: ' + m('(ax²)′ = 2ax') + ', ' + m('(bx)′ = b') + ', ' + m('(c)′ = 0') + '.',
+    explain: m('(' + poly([[a, 2]]) + ')′ = ' + poly([[2 * a, 1]])) + ', &nbsp;' + m('(' + poly([[b, 1]]) + ')′ = ' + N(b)) + ', &nbsp;' + m('(' + N(c) + ')′ = 0') + '. Together: ' + m(poly([[2 * a, 1], [b, 0]])) + '.'
+  });
+}
+
+function genDerivAt() {
+  const a = rnd(1, 4), n = pick([2, 3]), x0 = pick([-3, -2, -1, 1, 2, 3]);
+  const ans = a * n * Math.pow(x0, n - 1), val = a * Math.pow(x0, n);
+  return mc({
+    prompt: 'If ' + m('f(x) = ' + poly([[a, n]])) + ', what is ' + m('f′(' + N(x0) + ')') + '? (That\'s the slope of the tangent at ' + m('x = ' + N(x0)) + '.)',
+    correct: m(N(ans)), wrong: numWrong(ans, [val, a * Math.pow(x0, n - 1), a * n * Math.pow(x0, n)]).map(m),
+    hint: 'Step 1: find ' + m('f′(x)') + ' with the power rule. Step 2: plug in ' + m('x = ' + N(x0)) + '.',
+    explain: m('f′(x) = ' + poly([[a * n, n - 1]])) + ', so ' + m('f′(' + N(x0) + ') = ' + N(a * n) + (n === 2 ? '·(' + N(x0) + ')' : '·(' + N(x0) + ')<sup>2</sup>') + ' = ' + N(ans)) + '. (Careful: ' + m('f(' + N(x0) + ') = ' + N(val)) + ' is the height, not the slope!)'
+  });
+}
+
+// ---- World 5: Area Archipelago
+function genAreaRect() {
+  const c = rnd(1, 5), a = rnd(0, 2), b = a + rnd(2, 5);
+  return mc({
+    prompt: 'Find the shaded area: ' + m(integ(a, b) + N(c) + '&thinsp;dx') + ' (the area under ' + m('f(x) = ' + c) + ' from ' + m('x = ' + a) + ' to ' + m('x = ' + b) + ').',
+    graph: { xmin: -0.5, xmax: b + 1, ymin: -1, ymax: c + 2, items: [{ t: 'shade', f: () => c, a, b }, { t: 'fn', f: () => c, color: 'c1' }] },
+    correct: m(N(c * (b - a))), wrong: numWrong(c * (b - a), [c * b, c + b - a, b - a, c * (b - a) + c]).map(m),
+    hint: 'The shaded region is a rectangle. Area = width × height.',
+    explain: 'Width = ' + b + ' − ' + a + ' = ' + (b - a) + ', height = ' + c + '. Area = ' + (b - a) + ' × ' + c + ' = <b>' + c * (b - a) + '</b>.'
+  });
+}
+
+function genAreaTriangle() {
+  const k = pick([1, 2, 3]), b = k % 2 ? pick([2, 4]) : pick([2, 3, 4]);
+  const ans = k * b * b / 2;
+  return mc({
+    prompt: 'Find the shaded area ' + m(integ(0, b) + poly([[k, 1]]) + '&thinsp;dx') + ' under ' + m('f(x) = ' + poly([[k, 1]])) + ' from ' + m('x = 0') + ' to ' + m('x = ' + b) + '.',
+    graph: { xmin: -0.5, xmax: b + 1, ymin: -1, ymax: k * b + 2, items: [{ t: 'shade', f: x => k * x, a: 0, b }, { t: 'fn', f: x => k * x, color: 'c1' }, { t: 'pt', x: b, y: k * b, color: 'c2', label: '(' + b + ', ' + k * b + ')' }] },
+    correct: m(N(ans)), wrong: numWrong(ans, [k * b * b, k * b, b * b / 2 + 1, ans + b]).map(m),
+    hint: 'The region is a triangle. Area = ½ × base × height.',
+    explain: 'Base = ' + b + ', height = f(' + b + ') = ' + k * b + '. Area = ½ × ' + b + ' × ' + k * b + ' = <b>' + ans + '</b>.'
+  });
+}
+
+function genRiemann() {
+  const n = pick([3, 4]), side = pick(['left', 'right']);
+  const hs = []; for (let i = 0; i < n; i++) hs.push(side === 'left' ? i * i : (i + 1) * (i + 1));
+  const sum = hs.reduce((s, v) => s + v, 0);
+  const other = side === 'left' ? sum + n * n : sum - n * n;
+  return mc({
+    prompt: 'Estimate the area under ' + m('f(x) = x<sup>2</sup>') + ' from 0 to ' + n + ' using ' + n + ' rectangles of width 1, with heights taken from the <b>' + side + '</b> edge of each rectangle. Add up the rectangle areas.',
+    graph: { xmin: -0.4, xmax: n + 0.6, ymin: -1, ymax: n * n + 2, items: [
+      ...hs.map((h, i) => ({ t: 'rect', x: i, w: 1, h })), { t: 'fn', f: x => x * x, color: 'c1' } ],
+      reveal: [{ t: 'shade', f: x => x * x, a: 0, b: n, color: 'c3' }] },
+    correct: m(N(sum)), wrong: [N(other), frac(n * n * n, 3), N(n * n), N(sum + 1), N(sum - 1)].map(m),
+    hint: 'Each rectangle has width 1, so its area equals its height. Heights: ' + (side === 'left' ? 'f(0), f(1), …' : 'f(1), f(2), …'),
+    explain: 'Heights: ' + hs.join(' + ') + ' = <b>' + sum + '</b>. The exact area is ' + m(frac(n * n * n, 3)) + ' (green). Using more, thinner rectangles gets closer and closer to it — and that limit is the <b>integral</b>!'
+  });
+}
+
+function genAntideriv() {
+  const n = rnd(0, 3), k = pick([1, 2, 3, -1, -2]), a = k * (n + 1);
+  const integrand = n === 0 ? N(a) : poly([[a, n]]);
+  return mc({
+    prompt: 'Find the antiderivative: ' + m(integ() + integrand + '&thinsp;dx') + ' = ?',
+    correct: m(poly([[k, n + 1]]) + ' + C'),
+    wrong: [poly([[a, n + 1]]) + ' + C', poly([[a * n, n - 1]]) + ' + C', poly([[k, n]]) + ' + C', poly([[2 * k, n + 1]]) + ' + C'].map(m),
+    hint: 'Reverse power rule: add 1 to the exponent, then divide by the new exponent. ' + m('∫xⁿ dx = xⁿ⁺¹/(n+1) + C'),
+    explain: 'New power: ' + (n + 1) + '. Divide: ' + m(N(a) + ' ÷ ' + (n + 1) + ' = ' + N(k)) + '. So the answer is ' + m(poly([[k, n + 1]]) + ' + C') + '. Check: its derivative is ' + m(integrand) + ' ✓. (+C because any constant disappears when you differentiate.)'
+  });
+}
+
+function genFTC() {
+  const a = rnd(0, 2), b = a + rnd(1, 3), ans = b * b - a * a;
+  return mc({
+    prompt: 'Use the Fundamental Theorem: ' + m(integ(a, b) + '2x&thinsp;dx') + ' = ? &nbsp;(An antiderivative of ' + m('2x') + ' is ' + m('F(x) = x<sup>2</sup>') + '.)',
+    graph: { xmin: -0.5, xmax: b + 1, ymin: -1, ymax: 2 * b + 2, items: [{ t: 'shade', f: x => 2 * x, a, b }, { t: 'fn', f: x => 2 * x, color: 'c1' }] },
+    correct: m(N(ans)), wrong: numWrong(ans, [b * b + a * a, 2 * b - 2 * a, b * b, (b - a) * (b - a)]).map(m),
+    hint: 'Compute ' + m('F(b) − F(a)') + ' = ' + m(b + '<sup>2</sup> − ' + a + '<sup>2</sup>') + '.',
+    explain: m('F(' + b + ') − F(' + a + ') = ' + b * b + ' − ' + a * a + ' = ' + ans) + '. No rectangles needed — antiderivatives give the exact area!'
+  });
+}
+
+/* ============ worlds ============ */
+const WORLDS = [
+  { id: 'slope', icon: '⛰️', name: 'Slope Valley', tag: 'How steep is it? The idea of rate of change.',
+    formula: 'slope = rise ÷ run = (y₂ − y₁) ÷ (x₂ − x₁)',
+    gens: [genSlopeTwoPoints, genSlopeSign, genSlopeFromEq, genSpeed],
+    lesson: `<p><b>Calculus is the math of change.</b> To talk about change, we first need <b>slope</b>: how much y changes when x changes.</p>
+      <div class="key"><b>Key idea</b>${m('slope = rise ÷ run = (y₂ − y₁) ÷ (x₂ − x₁)')}</div>
+      <p>Uphill ↗ = positive slope. Downhill ↘ = negative slope. Flat → = zero slope.</p>
+      <div class="example"><b>Example:</b> from ${m('(1, 2)')} to ${m('(3, 8)')}: rise = 8 − 2 = 6, run = 3 − 1 = 2, so slope = 6 ÷ 2 = <b>3</b>.</div>
+      <p>In real life, slope is a <b>rate</b>: meters per second, dollars per hour. In ${m('y = mx + b')}, the slope is ${m('m')}.</p>` },
+  { id: 'limits', icon: '🌊', name: 'Limit Lake', tag: 'What value is the function heading toward?',
+    formula: 'lim x→a f(x) = L means f(x) gets as close to L as we like when x is close to a',
+    gens: [genLimitSub, genLimitTable, genLimitHole, genLimitInf],
+    lesson: `<p>A <b>limit</b> asks: as x gets closer and closer to some number a, what value does f(x) <i>approach</i>?</p>
+      <div class="key"><b>Key idea</b>${m(lim('a') + 'f(x) = L')} &nbsp;— the limit only cares about values <i>near</i> a, not <i>at</i> a.</div>
+      <p><b>Three tricks:</b></p>
+      <p>1. If the graph has no breaks, just <b>plug in</b>: ${m(lim('2') + '(3x + 1) = 7')}.</p>
+      <p>2. If plugging in gives ${m('0 ÷ 0')}, use a <b>table</b> or <b>factor</b> and cancel.</p>
+      <p>3. As ${m('x → ∞')}, ${m('k ÷ x → 0')} (a fixed amount split into infinitely many pieces).</p>
+      <div class="example"><b>Example:</b> a graph with a hole at height 4 when x = 1 still has ${m(lim('1') + 'f(x) = 4')}, whatever f(1) is.</div>` },
+  { id: 'tangent', icon: '🗼', name: 'Tangent Tower', tag: 'The derivative = slope of the tangent line.',
+    formula: "f′(a) = slope of the tangent line at x = a = instantaneous rate of change",
+    gens: [genTangentSlider, genSecantTable, genFlatTangent, genDerivSign],
+    lesson: `<p>A curve doesn't have one slope — it's steeper in some places than others. So we ask for the slope <b>at a single point</b>.</p>
+      <p>Draw a <b>secant line</b> through two points on the curve. Now slide the second point closer and closer… The secant turns into the <b>tangent line</b>, which just touches the curve at one point.</p>
+      <div class="key"><b>Key idea</b>The slope of the tangent line at ${m('x = a')} is the <b>derivative</b> ${m("f′(a)")}. It's the <i>instantaneous</i> rate of change — like a speedometer reading.</div>
+      <p>${m("f′ > 0")}: curve rising. ${m("f′ < 0")}: curve falling. ${m("f′ = 0")}: flat — the top of a hill or bottom of a valley.</p>
+      <div class="example"><b>Example:</b> for ${m('f(x) = x<sup>2</sup>')}, the tangent at x = 3 has slope 6. In general ${m('f′(x) = 2x')}.</div>` },
+  { id: 'deriv', icon: '🥋', name: 'Derivative Dojo', tag: 'Shortcut rules: the power rule and friends.',
+    formula: '(xⁿ)′ = n·xⁿ⁻¹ · (c)′ = 0 · (f + g)′ = f′ + g′',
+    gens: [genPowerRule, genConstLinear, genPolyDeriv, genDerivAt],
+    lesson: `<p>Finding tangent slopes with limits every time is slow. Mathematicians found <b>shortcut rules</b>:</p>
+      <div class="key"><b>Power rule</b>${m('(xⁿ)′ = n · xⁿ⁻¹')} — bring the power down, then lower the power by 1.</div>
+      <p><b>Constant rule:</b> ${m('(5)′ = 0')} &nbsp; (flat line, zero slope)</p>
+      <p><b>Constant multiple:</b> ${m('(3x<sup>4</sup>)′ = 3 · 4x<sup>3</sup> = 12x<sup>3</sup>')}</p>
+      <p><b>Sum rule:</b> differentiate each term separately.</p>
+      <div class="example"><b>Example:</b> ${m('f(x) = 3x<sup>2</sup> + 5x − 7')} → ${m('f′(x) = 6x + 5')}. Then ${m('f′(2) = 17')} is the tangent slope at x = 2.</div>` },
+  { id: 'area', icon: '🏝️', name: 'Area Archipelago', tag: 'Integrals: adding up area under a curve.',
+    formula: '∫xⁿ dx = xⁿ⁺¹/(n+1) + C · ∫ₐᵇ f(x) dx = F(b) − F(a)',
+    gens: [genAreaRect, genAreaTriangle, genRiemann, genAntideriv, genFTC],
+    lesson: `<p>The second big idea of calculus: the <b>integral</b> measures the <b>area under a curve</b>.</p>
+      <p>Estimate it with rectangles (a <b>Riemann sum</b>). More, thinner rectangles → better estimate. The limit of that process is the exact area, written ${m(integ('a', 'b') + 'f(x)&thinsp;dx')}.</p>
+      <div class="key"><b>Antiderivative (reverse power rule)</b>${m('∫xⁿ dx = xⁿ⁺¹ ÷ (n+1) + C')}</div>
+      <div class="key"><b>Fundamental Theorem of Calculus</b>If ${m("F′ = f")}, then ${m(integ('a', 'b') + 'f(x)&thinsp;dx = F(b) − F(a)')}. Derivatives and integrals undo each other!</div>
+      <div class="example"><b>Example:</b> ${m(integ('0', '3') + '2x&thinsp;dx = 3<sup>2</sup> − 0<sup>2</sup> = 9')} — the area of a triangle with base 3, height 6.</div>` },
+  { id: 'boss', icon: '🐉', name: 'Final Boss: The Calculus Dragon', tag: 'A mixed review of every world. 10 questions!',
+    formula: 'You mastered the basics of calculus: limits, derivatives and integrals! 🎓',
+    gens: null, count: 10,
+    lesson: `<p>The Calculus Dragon guards the summit. It will test you on <b>everything</b>: slopes, limits, tangents, derivative rules and areas.</p>
+      <div class="key"><b>Quick review</b>
+        slope = rise ÷ run<br>limit = the value f(x) <i>approaches</i><br>derivative = slope of the tangent, ${m('(xⁿ)′ = nxⁿ⁻¹')}<br>integral = area, ${m('∫xⁿ dx = xⁿ⁺¹/(n+1) + C')}</div>
+      <p>10 questions, 3 hearts. Use hints if you need them. Good luck! 🗡️</p>` }
+];
+
+/* ============ state & persistence ============ */
+const SAVE_KEY = 'calculusQuest.v1';
+let save = { stars: {}, xp: 0 };
+try { const s = JSON.parse(localStorage.getItem(SAVE_KEY)); if (s && s.stars) save = s; } catch (e) {}
+const persist = () => { try { localStorage.setItem(SAVE_KEY, JSON.stringify(save)); } catch (e) {} };
+const unlocked = i => i === 0 || (i < WORLDS.length - 1 ? !!save.stars[WORLDS[i - 1].id] : WORLDS.slice(0, -1).every(w => save.stars[w.id]));
+
+let S = null; // current run
+
+/* ============ screens ============ */
+function show(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === id));
+  window.scrollTo(0, 0);
+}
+function updateXP() { $('#xpPill').textContent = '⭐ ' + save.xp + ' XP'; }
+
+function renderMap() {
+  updateXP();
+  const box = $('#worlds'); box.innerHTML = '';
+  WORLDS.forEach((w, i) => {
+    const st = save.stars[w.id] || 0, open = unlocked(i);
+    const b = document.createElement('button');
+    b.className = 'world'; b.disabled = !open;
+    b.innerHTML = '<div class="num">' + (w.id === 'boss' ? 'Boss' : 'World ' + (i + 1)) + '</div><div class="icon">' + (open ? w.icon : '🔒') + '</div>' +
+      '<div class="name">' + w.name + '</div><div class="tag">' + (open ? w.tag : 'Clear the previous world to unlock.') + '</div>' +
+      '<div class="stars">' + '★'.repeat(st) + '<span class="muted">' + '☆'.repeat(3 - st) + '</span></div>';
+    b.onclick = () => openLesson(i);
+    box.appendChild(b);
+  });
+  const nb = $('#notebook'); nb.innerHTML = '';
+  WORLDS.forEach(w => {
+    const li = document.createElement('li'), got = !!save.stars[w.id];
+    li.className = got ? '' : 'locked';
+    li.innerHTML = '<b>' + w.icon + ' ' + w.name + '</b>' + (got ? '<span class="m">' + w.formula + '</span>' : '??? — clear this world to reveal');
+    nb.appendChild(li);
+  });
+  show('mapScreen');
+}
+
+function openLesson(i) {
+  const w = WORLDS[i];
+  $('#lessonBody').innerHTML = '<h1><span class="icon">' + w.icon + '</span>' + w.name + '</h1><p class="muted">🦉 Professor Owl explains…</p>' + w.lesson;
+  $('#lessonStart').onclick = () => startWorld(i);
+  show('lessonScreen');
+}
+
+function buildQuestions(w) {
+  const count = w.count || 6;
+  const pool = w.gens || WORLDS.filter(x => x.gens).flatMap(x => x.gens);
+  // cycle through generators in shuffled order so every question type appears
+  const order = []; while (order.length < count) order.push(...shuffle(pool.slice()));
+  return order.slice(0, count).map(g => g());
+}
+
+function startWorld(i) {
+  const w = WORLDS[i];
+  S = { wi: i, w, qs: buildQuestions(w), i: 0, hearts: 3, streak: 0, best: 0, mistakes: 0, xp: 0 };
+  show('playScreen');
+  renderQuestion();
+}
+
+function renderHUD() {
+  $('#hearts').textContent = '❤️'.repeat(S.hearts) + '🤍'.repeat(3 - S.hearts);
+  $('#streak').textContent = S.streak >= 2 ? '🔥 ' + S.streak : '';
+  $('#bar').style.width = (S.i / S.qs.length * 100) + '%';
+}
+
+function renderQuestion() {
+  const q = S.qs[S.i];
+  S.locked = false; S.hintUsed = false; q.revealed = false;
+  renderHUD();
+  $('#qnum').textContent = S.w.name + ' · Question ' + (S.i + 1) + ' of ' + S.qs.length;
+  $('#prompt').innerHTML = q.prompt;
+  // table
+  const tw = $('#tableWrap');
+  if (q.table) {
+    tw.style.display = '';
+    tw.innerHTML = '<table class="vals"><tr>' + q.table.head.map(h => '<th>' + h + '</th>').join('') + '</tr>' +
+      q.table.rows.map(r => '<tr>' + r.map((c, j) => j === 0 ? '<th>' + c + '</th>' : (typeof c === 'object' ? '<td class="hl">' + c.v + '</td>' : '<td>' + c + '</td>')).join('') + '</tr>').join('') + '</table>';
+  } else { tw.style.display = 'none'; tw.innerHTML = ''; }
+  // graph
+  $('#graph').style.display = q.graph ? 'block' : 'none';
+  // answers
+  const area = $('#answerArea'); area.innerHTML = '';
+  if (q.type === 'mc') {
+    const box = document.createElement('div'); box.className = 'choices';
+    q.choices.forEach((c, j) => {
+      const b = document.createElement('button');
+      b.className = 'choice'; b.innerHTML = '<span class="k">' + (j + 1) + '</span><span>' + c + '</span>';
+      b.onclick = () => answerMC(j);
+      box.appendChild(b);
+    });
+    area.appendChild(box);
+  } else {
+    S.slope = 0;
+    area.innerHTML = '<div class="slider-box"><div class="slider-val">Slope of orange line: <b class="m" id="slopeVal">0</b></div>' +
+      '<input type="range" id="slope" min="' + q.min + '" max="' + q.max + '" step="' + q.step + '" value="0" aria-label="Slope">' +
+      '<div><button class="btn primary" id="checkBtn">Check ✔</button></div></div>';
+    $('#slope').oninput = e => { S.slope = +e.target.value; $('#slopeVal').textContent = N(S.slope); drawCurrent(); };
+    $('#checkBtn').onclick = answerSlider;
+  }
+  $('#hint').className = 'hint'; $('#hint').innerHTML = '💡 ' + q.hint;
+  $('#hintBtn').style.display = '';
+  $('#feedback').className = 'feedback'; $('#feedback').innerHTML = '';
+  $('#nextBtn').style.display = 'none';
+  drawCurrent();
+}
+
+function drawCurrent() {
+  if (!S || !$('#playScreen').classList.contains('active')) return;
+  const q = S.qs[S.i];
+  if (!q.graph) return;
+  const extra = [];
+  if (q.type === 'slider') extra.push({ t: 'line', x: q.x0, y: q.y0, slope: S.slope, color: 'c2', width: 3 });
+  drawGraph($('#graph'), q.graph, q.revealed, extra);
+}
+
+const CHEERS = ['Brilliant! 🎉', 'Nailed it! ✨', 'Correct! 🦉', 'Great thinking! 🧠', 'Yes! 🚀', 'Spot on! 🎯'];
+const OOPS = ['Not quite.', 'Almost — let\'s see why.', 'Oops! Here\'s the idea:'];
+
+function finishAnswer(correct, extraMsg) {
+  const q = S.qs[S.i];
+  S.locked = true; q.revealed = true;
+  if (correct) {
+    S.streak++; S.best = Math.max(S.best, S.streak);
+    const gain = (S.hintUsed ? 5 : 10) + (S.streak >= 3 ? 5 : 0);
+    S.xp += gain;
+  } else {
+    S.streak = 0; S.mistakes++; S.hearts--;
+  }
+  const fb = $('#feedback');
+  fb.className = 'feedback show ' + (correct ? 'good' : 'bad');
+  fb.innerHTML = '<div class="title ' + (correct ? 'good' : 'bad') + '">' + (correct ? pick(CHEERS) : pick(OOPS)) + (extraMsg ? ' ' + extraMsg : '') + '</div>' + q.explain;
+  $('#hintBtn').style.display = 'none';
+  const done = S.hearts <= 0 || S.i === S.qs.length - 1;
+  $('#nextBtn').textContent = done ? 'See results →' : 'Next →';
+  $('#nextBtn').style.display = '';
+  $('#nextBtn').focus({ preventScroll: true });
+  renderHUD();
+  drawCurrent();
+}
+
+function answerMC(j) {
+  if (S.locked) return;
+  const q = S.qs[S.i];
+  const btns = document.querySelectorAll('.choice');
+  btns.forEach((b, k) => { b.disabled = true; if (k === q.answer) b.classList.add('right'); });
+  if (j !== q.answer) btns[j].classList.add('wrong');
+  finishAnswer(j === q.answer);
+}
+
+function answerSlider() {
+  if (S.locked) return;
+  const q = S.qs[S.i];
+  const correct = Math.abs(S.slope - q.target) < 1e-6;
+  $('#slope').disabled = true; $('#checkBtn').disabled = true;
+  finishAnswer(correct, correct ? '' : 'Your line had slope ' + N(S.slope) + (S.slope > q.target ? ' (too steep upward).' : ' (not steep enough upward).'));
+}
+
+function next() {
+  if (!S || !S.locked) return;
+  if (S.hearts <= 0) return showResult(false);
+  if (S.i === S.qs.length - 1) return showResult(true);
+  S.i++; renderQuestion();
+}
+
+function showResult(passed) {
+  $('#bar').style.width = '100%';
+  const body = $('#resultBody');
+  if (!passed) {
+    body.innerHTML = '<h1>Out of hearts 💔</h1><p class="muted">No worries — mistakes are how mathematicians learn. Review the lesson and try again with new questions.</p>' +
+      '<div class="row"><button class="btn" id="rMap">Map</button><button class="btn" id="rLesson">Review lesson</button><button class="btn primary" id="rRetry">Try again</button></div>';
+  } else {
+    const stars = S.mistakes === 0 ? 3 : S.mistakes === 1 ? 2 : 1;
+    const bonus = stars * 10;
+    S.xp += bonus;
+    const first = !save.stars[S.w.id];
+    save.stars[S.w.id] = Math.max(save.stars[S.w.id] || 0, stars);
+    save.xp += S.xp; persist(); updateXP();
+    const hasNext = S.wi < WORLDS.length - 1;
+    body.innerHTML = '<h1>' + (S.w.id === 'boss' ? 'You defeated the Calculus Dragon! 🐉🏆' : S.w.name + ' cleared! 🎉') + '</h1>' +
+      '<div class="big-stars pop">' + '★'.repeat(stars) + '<span class="muted">' + '☆'.repeat(3 - stars) + '</span></div>' +
+      '<p><b>+' + S.xp + ' XP</b> · mistakes: ' + S.mistakes + ' · best streak: ' + S.best + '</p>' +
+      (first ? '<div class="key" style="text-align:left"><b>📓 New notebook entry</b><span class="m">' + S.w.formula + '</span></div>' : '') +
+      (stars < 3 ? '<p class="muted">Replay with zero mistakes for 3 stars!</p>' : '') +
+      '<div class="row"><button class="btn" id="rMap">Map</button><button class="btn" id="rRetry">Play again</button>' +
+      (hasNext ? '<button class="btn primary" id="rNext">Next world →</button>' : '') + '</div>';
+    if (hasNext) $('#rNext').onclick = () => openLesson(S.wi + 1);
+  }
+  $('#rMap').onclick = renderMap;
+  $('#rRetry').onclick = () => startWorld(S.wi);
+  if ($('#rLesson')) $('#rLesson').onclick = () => openLesson(S.wi);
+  show('resultScreen');
+}
+
+/* ============ graph drawing ============ */
+function niceStep(span) {
+  const raw = span / 8, p = Math.pow(10, Math.floor(Math.log10(raw))), f = raw / p;
+  return (f < 1.5 ? 1 : f < 3.5 ? 2 : f < 7.5 ? 5 : 10) * p;
+}
+function drawGraph(cv, g, revealed, extra) {
+  const w = cv.clientWidth, h = cv.clientHeight;
+  if (!w || !h) return;
+  const dpr = window.devicePixelRatio || 1;
+  cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr);
+  const ctx = cv.getContext('2d');
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const css = getComputedStyle(document.documentElement);
+  const col = n => css.getPropertyValue('--' + n).trim();
+  const X = x => (x - g.xmin) / (g.xmax - g.xmin) * w;
+  const Y = y => h - (y - g.ymin) / (g.ymax - g.ymin) * h;
+  ctx.clearRect(0, 0, w, h);
+  ctx.font = '11px system-ui, sans-serif';
+
+  // grid + ticks
+  const sx = niceStep(g.xmax - g.xmin), sy = niceStep(g.ymax - g.ymin);
+  ctx.lineWidth = 1; ctx.strokeStyle = col('grid'); ctx.beginPath();
+  for (let x = Math.ceil(g.xmin / sx) * sx; x <= g.xmax; x += sx) { ctx.moveTo(X(x), 0); ctx.lineTo(X(x), h); }
+  for (let y = Math.ceil(g.ymin / sy) * sy; y <= g.ymax; y += sy) { ctx.moveTo(0, Y(y)); ctx.lineTo(w, Y(y)); }
+  ctx.stroke();
+  ctx.strokeStyle = col('axis'); ctx.lineWidth = 1.5; ctx.beginPath();
+  const ax = Math.min(Math.max(Y(0), 0), h), ay = Math.min(Math.max(X(0), 0), w);
+  ctx.moveTo(0, ax); ctx.lineTo(w, ax); ctx.moveTo(ay, 0); ctx.lineTo(ay, h); ctx.stroke();
+  ctx.fillStyle = col('muted');
+  ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  for (let x = Math.ceil(g.xmin / sx) * sx; x <= g.xmax; x += sx) if (Math.abs(x) > 1e-9 && X(x) > 12 && X(x) < w - 12) ctx.fillText(N(+x.toFixed(6)), X(x), Math.min(ax + 4, h - 14));
+  ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+  for (let y = Math.ceil(g.ymin / sy) * sy; y <= g.ymax; y += sy) if (Math.abs(y) > 1e-9 && Y(y) > 8 && Y(y) < h - 8) ctx.fillText(N(+y.toFixed(6)), Math.max(ay - 4, 22), Y(y));
+  if (g.xLabel) { ctx.textAlign = 'right'; ctx.textBaseline = 'bottom'; ctx.fillText(g.xLabel, w - 6, ax - 4); }
+  if (g.yLabel) { ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.fillText(g.yLabel, ay + 6, 6); }
+
+  const layer = { shade: 0, rect: 0, fn: 1, vline: 1, line: 2, seg: 2, hole: 3, pt: 3, label: 4 };
+  const items = [...(g.items || []), ...(revealed ? g.reveal || [] : []), ...extra].sort((a, b) => layer[a.t] - layer[b.t]);
+  ctx.save(); ctx.beginPath(); ctx.rect(0, 0, w, h); ctx.clip();
+  for (const it of items) {
+    const c = col(it.color || 'c1');
+    ctx.setLineDash(it.dash ? [6, 5] : []);
+    ctx.lineWidth = it.width || 2.5; ctx.strokeStyle = c; ctx.fillStyle = c;
+    switch (it.t) {
+      case 'fn': {
+        ctx.beginPath(); let pen = false;
+        for (let i = 0; i <= 400; i++) {
+          const x = g.xmin + (g.xmax - g.xmin) * i / 400, y = it.f(x);
+          if (!isFinite(y) || Math.abs(Y(y)) > 1e5) { pen = false; continue; }
+          pen ? ctx.lineTo(X(x), Y(y)) : ctx.moveTo(X(x), Y(y)); pen = true;
+        }
+        ctx.stroke(); break;
+      }
+      case 'line': {
+        const f = x => it.y + it.slope * (x - it.x);
+        ctx.beginPath(); ctx.moveTo(X(g.xmin), Y(f(g.xmin))); ctx.lineTo(X(g.xmax), Y(f(g.xmax))); ctx.stroke(); break;
+      }
+      case 'vline': ctx.setLineDash([3, 4]); ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(X(it.x), 0); ctx.lineTo(X(it.x), h); ctx.stroke(); break;
+      case 'seg': ctx.beginPath(); ctx.moveTo(X(it.x1), Y(it.y1)); ctx.lineTo(X(it.x2), Y(it.y2)); ctx.stroke(); break;
+      case 'shade': {
+        ctx.fillStyle = col(it.color || 'shade'); ctx.globalAlpha = 0.28; ctx.beginPath(); ctx.moveTo(X(it.a), Y(0));
+        for (let i = 0; i <= 200; i++) { const x = it.a + (it.b - it.a) * i / 200; ctx.lineTo(X(x), Y(it.f(x))); }
+        ctx.lineTo(X(it.b), Y(0)); ctx.closePath(); ctx.fill(); ctx.globalAlpha = 1; break;
+      }
+      case 'rect': {
+        const rc = col('c2');
+        ctx.fillStyle = rc; ctx.strokeStyle = rc; ctx.lineWidth = 1.5; ctx.globalAlpha = 0.25;
+        ctx.fillRect(X(it.x), Y(it.h), X(it.x + it.w) - X(it.x), Y(0) - Y(it.h)); ctx.globalAlpha = 1;
+        ctx.strokeRect(X(it.x), Y(it.h), X(it.x + it.w) - X(it.x), Y(0) - Y(it.h));
+        ctx.fillStyle = col('ink'); ctx.textAlign = 'center'; ctx.textBaseline = 'bottom'; ctx.font = '12px system-ui, sans-serif';
+        ctx.fillText('h=' + it.h, X(it.x + it.w / 2), Y(it.h) - 3); ctx.font = '11px system-ui, sans-serif'; break;
+      }
+      case 'hole': ctx.setLineDash([]); ctx.lineWidth = 2.5; ctx.fillStyle = col('panel'); ctx.beginPath(); ctx.arc(X(it.x), Y(it.y), 6, 0, 7); ctx.fill(); ctx.stroke(); break;
+      case 'pt':
+        ctx.beginPath(); ctx.arc(X(it.x), Y(it.y), 6, 0, 7); ctx.fill();
+        if (it.label) { ctx.fillStyle = col('ink'); ctx.font = '600 13px system-ui, sans-serif'; ctx.textAlign = 'left'; ctx.textBaseline = 'bottom'; ctx.fillText(it.label, X(it.x) + 8, Y(it.y) - 6); ctx.font = '11px system-ui, sans-serif'; }
+        break;
+      case 'label':
+        ctx.font = '600 12px system-ui, sans-serif'; ctx.textAlign = it.dx ? 'left' : 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText(it.text, X(it.x) + (it.dx || 0), Y(it.y) + (it.dy || 0)); ctx.font = '11px system-ui, sans-serif'; break;
+    }
+  }
+  ctx.restore(); ctx.setLineDash([]);
+}
+
+/* ============ wiring ============ */
+$('#home').onclick = renderMap;
+$('#lessonBack').onclick = renderMap;
+$('#quitBtn').onclick = () => { if (confirm('Leave this world? Progress in this round will be lost.')) renderMap(); };
+$('#nextBtn').onclick = next;
+$('#hintBtn').onclick = () => { S.hintUsed = true; $('#hint').classList.add('show'); $('#hintBtn').style.display = 'none'; };
+$('#resetBtn').onclick = () => { if (confirm('Erase all stars and XP?')) { save = { stars: {}, xp: 0 }; persist(); renderMap(); } };
+$('#themeBtn').onclick = () => {
+  const r = document.documentElement;
+  const dark = r.dataset.theme ? r.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+  r.dataset.theme = dark ? 'light' : 'dark';
+  try { localStorage.setItem('calculusQuest.theme', r.dataset.theme); } catch (e) {}
+  drawCurrent();
+};
+try { const t = localStorage.getItem('calculusQuest.theme'); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+window.addEventListener('resize', drawCurrent);
+document.addEventListener('keydown', e => {
+  if (!$('#playScreen').classList.contains('active') || !S) return;
+  const q = S.qs[S.i];
+  if (!S.locked && q.type === 'mc' && /^[1-4]$/.test(e.key)) { const j = +e.key - 1; if (j < q.choices.length) answerMC(j); }
+  else if (e.key === 'Enter' && S.locked) { e.preventDefault(); next(); }
+});
+renderMap();
+</script>
+</body>
+</html>
