@@ -6,26 +6,11 @@
 <title>Calculus Quest</title>
 <style>
   :root {
-    --bg: #f6f4ef;
-    --panel: #ffffff;
-    --ink: #1f2430;
-    --muted: #5f6675;
-    --line: #e2ded4;
-    --grid: #ece8de;
-    --axis: #8a8f9c;
-    --accent: #3b5bdb;
-    --accent-ink: #ffffff;
-    --good: #2b8a3e;
-    --good-bg: #e6f4ea;
-    --bad: #c92a2a;
-    --bad-bg: #fdecec;
-    --warn-bg: #fff6dd;
-    --c1: #3b5bdb;
-    --c2: #e8590c;
-    --c3: #2b8a3e;
-    --c4: #ae3ec9;
-    --shade: #3b5bdb;
-    --locked: #b9b4a8;
+    --bg: #f6f4ef; --panel: #ffffff; --ink: #1f2430; --muted: #5f6675; --line: #e2ded4;
+    --grid: #ece8de; --axis: #8a8f9c; --accent: #3b5bdb; --accent-ink: #ffffff;
+    --good: #2b8a3e; --good-bg: #e6f4ea; --bad: #c92a2a; --bad-bg: #fdecec; --warn-bg: #fff6dd;
+    --c1: #3b5bdb; --c2: #e8590c; --c3: #2b8a3e; --c4: #ae3ec9; --shade: #3b5bdb; --locked: #b9b4a8;
+    --road: #d9d4c7; --sky: #e7f0fb; --eng-bg: #eef1fd;
     --radius: 14px;
   }
   @media (prefers-color-scheme: dark) {
@@ -34,6 +19,7 @@
       --grid: #2a2e37; --axis: #7d8494; --accent: #7b93ff; --accent-ink: #11131a;
       --good: #69db7c; --good-bg: #1d3324; --bad: #ff8787; --bad-bg: #3a1f22; --warn-bg: #3a3320;
       --c1: #7b93ff; --c2: #ff922b; --c3: #69db7c; --c4: #da77f2; --shade: #7b93ff; --locked: #555b68;
+      --road: #3a3e48; --sky: #1c2433; --eng-bg: #232a40;
     }
   }
   :root[data-theme="dark"] {
@@ -41,12 +27,13 @@
     --grid: #2a2e37; --axis: #7d8494; --accent: #7b93ff; --accent-ink: #11131a;
     --good: #69db7c; --good-bg: #1d3324; --bad: #ff8787; --bad-bg: #3a1f22; --warn-bg: #3a3320;
     --c1: #7b93ff; --c2: #ff922b; --c3: #69db7c; --c4: #da77f2; --shade: #7b93ff; --locked: #555b68;
+    --road: #3a3e48; --sky: #1c2433; --eng-bg: #232a40;
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; }
   body {
     background: var(--bg); color: var(--ink);
-    font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font: 17px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
     min-height: 100vh;
   }
   .wrap { max-width: 860px; margin: 0 auto; padding: 20px 16px 48px; }
@@ -72,8 +59,13 @@
 
   /* Map */
   .hero { margin-bottom: 18px; }
-  .hero p { color: var(--muted); max-width: 60ch; }
-  .worlds { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; }
+  .hero p { color: var(--muted); max-width: 62ch; }
+  .modes { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 14px 0 6px; max-width: 560px; }
+  .mode-btn { font: inherit; text-align: left; cursor: pointer; border: 2px solid var(--line); background: var(--panel); color: var(--ink); border-radius: 12px; padding: 10px 14px; }
+  .mode-btn b { display: block; font-size: 1.05rem; }
+  .mode-btn small { color: var(--muted); }
+  .mode-btn[aria-pressed="true"] { border-color: var(--accent); background: var(--eng-bg); }
+  .worlds { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; margin-top: 16px; }
   .world {
     text-align: left; border: 1px solid var(--line); background: var(--panel); color: var(--ink);
     border-radius: var(--radius); padding: 16px; cursor: pointer; font: inherit;
@@ -84,7 +76,7 @@
   .world:disabled { cursor: not-allowed; opacity: .55; }
   .world .icon { font-size: 1.9rem; line-height: 1; }
   .world .name { font-weight: 700; font-size: 1.08rem; }
-  .world .tag { color: var(--muted); font-size: .9rem; flex: 1; }
+  .world .tag { color: var(--muted); font-size: .92rem; flex: 1; }
   .world .stars { letter-spacing: 2px; font-size: 1.05rem; }
   .world .num { font-size: .75rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 600; }
   .notebook { margin-top: 22px; }
@@ -92,6 +84,7 @@
   .notebook li { border: 1px dashed var(--line); border-radius: 10px; padding: 10px 12px; }
   .notebook li.locked { color: var(--locked); }
   .notebook li b { display: block; font-size: .8rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+  .notebook .f { display: block; margin-top: 4px; color: var(--muted); }
   .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
   .spacer { flex: 1; }
 
@@ -101,15 +94,34 @@
     border: 1px solid var(--line); background: var(--panel); color: var(--ink);
   }
   .btn:hover { border-color: var(--accent); }
+  .btn:disabled { opacity: .5; cursor: default; }
   .btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
   .btn.small { padding: 6px 12px; font-size: .9rem; }
-  .btn:focus-visible, .choice:focus-visible, .world:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+  .btn:focus-visible, .choice:focus-visible, .world:focus-visible, .mode-btn:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
 
   /* Lesson */
-  .lesson h1 .icon { margin-right: .3em; }
+  .lesson-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 6px; }
+  .lesson-head .icon { font-size: 2rem; }
+  .dots { display: flex; gap: 6px; margin-left: auto; }
+  .dots i { width: 10px; height: 10px; border-radius: 50%; background: var(--line); display: block; }
+  .dots i.on { background: var(--accent); }
+  .owl { color: var(--muted); margin-bottom: 10px; }
   .key { background: var(--warn-bg); border-radius: 10px; padding: 12px 14px; margin: 12px 0; }
   .key b:first-child { display: block; margin-bottom: 4px; }
-  .example { border-left: 4px solid var(--accent); padding: 4px 0 4px 12px; margin: 12px 0; }
+  .widget { margin: 14px 0; }
+  .ctrls { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px 18px; margin: 8px 0; }
+  .ctrls label { display: block; font-size: .95rem; }
+  .ctrls label input { display: block; margin-top: 4px; }
+  .ctrls input[type=range], .slider-box input[type=range] { width: 100%; accent-color: var(--accent); }
+  .readout { background: var(--bg); border-radius: 10px; padding: 10px 14px; font-size: 1.02rem; margin-top: 8px; }
+  .road { position: relative; height: 64px; border-radius: 10px; background: linear-gradient(to bottom, var(--sky) 0 62%, var(--road) 62% 100%); margin-bottom: 10px; overflow: hidden; border: 1px solid var(--line); }
+  .veh { position: absolute; bottom: 6px; font-size: 30px; line-height: 1; transition: none; }
+  .flip { display: inline-block; transform: scaleX(-1); }
+  .wall { position: absolute; right: 4px; bottom: 6px; font-size: 32px; line-height: 1; }
+  details.math { margin-top: 16px; border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; background: var(--eng-bg); }
+  details.math summary { cursor: pointer; font-weight: 600; }
+  details.math > div { margin-top: 10px; }
+  .engnote { margin-top: 8px; padding: 8px 12px; border-radius: 8px; background: var(--eng-bg); font-size: .95rem; }
 
   /* Play */
   .hud { display: flex; align-items: center; gap: 14px; margin-bottom: 12px; flex-wrap: wrap; }
@@ -126,9 +138,9 @@
   table.vals th { background: var(--bg); font-weight: 600; }
   table.vals td.hl { background: var(--warn-bg); font-style: italic; }
   .choices { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  @media (max-width: 520px) { .choices { grid-template-columns: 1fr; } canvas.graph { height: 230px; } }
+  @media (max-width: 520px) { .choices, .modes { grid-template-columns: 1fr; } canvas.graph { height: 230px; } }
   .choice {
-    font: inherit; font-size: 1.08rem; text-align: left; padding: 12px 14px; border-radius: 10px; cursor: pointer;
+    font: inherit; font-size: 1.05rem; text-align: left; padding: 12px 14px; border-radius: 10px; cursor: pointer;
     border: 2px solid var(--line); background: var(--panel); color: var(--ink); display: flex; gap: 10px; align-items: center;
   }
   .choice:hover:not(:disabled) { border-color: var(--accent); }
@@ -137,8 +149,7 @@
   .choice.wrong { border-color: var(--bad); background: var(--bad-bg); }
   .choice:disabled { cursor: default; }
   .slider-box { display: grid; gap: 10px; }
-  .slider-box input[type=range] { width: 100%; accent-color: var(--accent); }
-  .slider-val { font-size: 1.2rem; }
+  .slider-val { font-size: 1.15rem; }
   .tools { display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap; align-items: center; }
   .hint { margin-top: 12px; background: var(--warn-bg); border-radius: 10px; padding: 10px 14px; display: none; }
   .hint.show { display: block; }
@@ -172,12 +183,16 @@
   <!-- MAP -->
   <section class="screen active" id="mapScreen">
     <div class="hero">
-      <h1>Learn calculus one world at a time 🦉</h1>
-      <p>Each world starts with a short lesson from Professor Owl, then 6 questions. You have 3 hearts per world. Clear a world to unlock the next and add a formula to your notebook.</p>
+      <h1>Calculus is the math of <i>change</i> 🦉</h1>
+      <p>How fast is a car going right now? How much water is in the tank? Calculus answers questions like these. Start with stories and pictures. The formulas only come later, if you want them.</p>
+      <div class="modes" role="group" aria-label="Choose your level">
+        <button class="mode-btn" data-mode="kid"><b>🧒 Explorer</b><small>Age 10+. Stories and pictures, no formulas.</small></button>
+        <button class="mode-btn" data-mode="eng"><b>🎓 Engineer</b><small>The same stories, plus the math and formula questions.</small></button>
+      </div>
     </div>
     <div class="worlds" id="worlds"></div>
     <div class="panel notebook">
-      <h2>📓 Formula Notebook</h2>
+      <h2>📓 Big Ideas Notebook</h2>
       <ul id="notebook"></ul>
     </div>
     <div class="row" style="margin-top:16px">
@@ -191,9 +206,9 @@
     <div class="panel lesson">
       <div id="lessonBody"></div>
       <div class="row" style="margin-top:18px">
-        <button class="btn" id="lessonBack">← Map</button>
+        <button class="btn" id="lessonBack">← Back</button>
         <span class="spacer"></span>
-        <button class="btn primary" id="lessonStart">Start the challenge →</button>
+        <button class="btn primary" id="lessonNext">Next →</button>
       </div>
     </div>
   </section>
@@ -238,20 +253,17 @@ const rnd = (a, b) => Math.floor(Math.random() * (b - a + 1)) + a;
 const pick = a => a[Math.floor(Math.random() * a.length)];
 const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 const gcd = (a, b) => { a = Math.abs(a); b = Math.abs(b); while (b) [a, b] = [b, a % b]; return a || 1; };
-// number -> display string with a real minus sign
 const N = v => {
   if (Math.abs(v) < 1e-9) v = 0;
   const a = Math.abs(v);
   const s = Number.isInteger(a) ? String(a) : String(+a.toFixed(3));
   return (v < 0 ? '−' : '') + s;
 };
-// reduced fraction p/q as text
 const frac = (p, q) => {
   if (q < 0) { p = -p; q = -q; }
   const g = gcd(p, q); p /= g; q /= g;
   return q === 1 ? N(p) : (p < 0 ? '−' : '') + Math.abs(p) + '/' + q;
 };
-// polynomial from [[coef, power], ...]
 const poly = terms => {
   let s = '';
   for (const [c, n] of terms) {
@@ -263,7 +275,7 @@ const poly = terms => {
   return s || '0';
 };
 const m = s => '<span class="m">' + s + '</span>';
-const lim = c => '<span class="lim">lim<small>x→' + c + '</small></span>';
+const lim = (c, v = 'x') => '<span class="lim">lim<small>' + v + '→' + c + '</small></span>';
 const integ = (a, b) => '<span class="int"><span class="sign">∫</span>' +
   (a === undefined ? '' : '<span class="bounds"><span>' + b + '</span><span>' + a + '</span></span>') + '</span>';
 const range = (f, a, b, pad = 1) => {
@@ -271,31 +283,146 @@ const range = (f, a, b, pad = 1) => {
   for (let i = 0; i <= 100; i++) { const y = f(a + (b - a) * i / 100); if (isFinite(y)) { lo = Math.min(lo, y); hi = Math.max(hi, y); } }
   return [Math.min(lo, 0) - pad, Math.max(hi, 0) + pad];
 };
+const table = (head, rows) => '<div class="tbl-wrap"><table class="vals"><tr>' + head.map(h => '<th>' + h + '</th>').join('') + '</tr>' +
+  rows.map(r => '<tr>' + r.map((c, j) => j === 0 ? '<th>' + c + '</th>' : '<td>' + c + '</td>').join('') + '</tr>').join('') + '</table></div>';
 
-// Build a multiple-choice question; wrong answers are de-duplicated against the right one.
+// mode: 'kid' (Explorer) or 'eng' (Engineer)
+const ENG = () => save.mode === 'eng';
+// extra line shown only to engineers
+const E = s => ENG() ? '<div class="engnote">🎓 ' + s + '</div>' : '';
+
 function mc(o) {
   const seen = new Set([o.correct]);
   const wrong = [];
   for (const w of o.wrong) {
     if (!seen.has(w)) { seen.add(w); wrong.push(w); }
-    if (wrong.length === (o.count || 4) - 1) break;
+    if (wrong.length === 3) break;
   }
   const choices = o.fixed ? o.fixed.slice() : shuffle([o.correct, ...wrong]);
   return Object.assign({ type: 'mc' }, o, { choices, answer: choices.indexOf(o.correct) });
 }
-const numWrong = (ans, list) => list.concat([ans + 1, ans - 1, ans + 2, ans * 2, ans - 2]).map(N);
+// numeric wrong answers with a unit, padded so there are always enough distinct ones
+const wrongNums = (ans, list, unit = '') => list.concat([ans + 1, ans - 1, ans + 2, ans * 2, ans + 3])
+  .filter(v => isFinite(v) && v >= 0).map(v => N(v) + unit);
 
-/* ============ question generators ============ */
+/* =====================================================================
+   WORLD 1 — Steepness Hills (slope & rates)
+   ===================================================================== */
+function genRampCompare() {
+  const a = [rnd(1, 5), rnd(2, 7)];
+  let b;
+  if (Math.random() < 0.2 && a[0] * 2 <= 6 && a[1] * 2 <= 8) b = [a[0] * 2, a[1] * 2];
+  else do { b = [rnd(1, 5), rnd(2, 7)]; } while (Math.abs(a[0] / a[1] - b[0] / b[1]) < 0.05);
+  const sa = a[0] / a[1], sb = b[0] / b[1];
+  const opts = ['Ramp A', 'Ramp B', 'Both are equally steep'];
+  const correct = Math.abs(sa - sb) < 1e-9 ? opts[2] : sa > sb ? opts[0] : opts[1];
+  const bx = a[1] + 1.5;
+  return mc({
+    prompt: '🛹 Two skate ramps. <b>Ramp A</b> goes <b>up ' + a[0] + '</b> while going <b>across ' + a[1] + '</b>. <b>Ramp B</b> goes <b>up ' + b[0] + '</b> while going <b>across ' + b[1] + '</b>. Which ramp is steeper?',
+    graph: { xmin: -0.5, xmax: bx + b[1] + 0.8, ymin: -0.6, ymax: Math.max(a[0], b[0]) + 1.2, equal: true, noTicks: true, items: [
+      { t: 'poly', pts: [[0, 0], [a[1], 0], [a[1], a[0]]], color: 'c1' },
+      { t: 'poly', pts: [[bx, 0], [bx + b[1], 0], [bx + b[1], b[0]]], color: 'c2' },
+      { t: 'label', x: a[1] / 2, y: 0, text: 'A', dy: -10, color: 'c1' },
+      { t: 'label', x: bx + b[1] / 2, y: 0, text: 'B', dy: -10, color: 'c2' } ] },
+    correct, wrong: opts.filter(o => o !== correct), fixed: opts,
+    hint: 'Work out how much each ramp goes <b>up for every 1 step across</b>: divide "up" by "across".',
+    explain: 'Ramp A: ' + a[0] + ' ÷ ' + a[1] + ' = <b>' + N(sa) + '</b> up for each step across. Ramp B: ' + b[0] + ' ÷ ' + b[1] + ' = <b>' + N(sb) + '</b>. ' +
+      (correct === opts[2] ? 'They are the same, so they are equally steep!' : 'The bigger number is the steeper ramp.') +
+      E('This "up ÷ across" number is the <b>slope</b>: ' + m('m = rise ÷ run') + '.')
+  });
+}
 
-// ---- World 1: Slope Valley
+const RATES = [
+  { e: '🚰', r: () => rnd(2, 9), t: () => rnd(2, 6), unit: ' litres per minute', one: 'minute', x: 'minutes', y: 'litres',
+    q: (tot, t) => 'A tap fills a bucket with <b>' + tot + ' litres</b> of water in <b>' + t + ' minutes</b>. The water flows at the same speed the whole time. How many litres come out <b>each minute</b>?' },
+  { e: '🚗', r: () => pick([30, 40, 50, 60]), t: () => rnd(2, 5), unit: ' km per hour', one: 'hour', x: 'hours', y: 'km',
+    q: (tot, t) => 'A car drives <b>' + tot + ' km</b> in <b>' + t + ' hours</b> at a steady speed. How many km does it travel <b>each hour</b>?' },
+  { e: '🐷', r: () => pick([20, 30, 50, 100]), t: () => rnd(2, 6), unit: ' ₹ per week', one: 'week', x: 'weeks', y: '₹ saved',
+    q: (tot, t) => 'Asha saves the same amount every week. After <b>' + t + ' weeks</b> she has saved <b>₹' + tot + '</b>. How much does she save <b>each week</b>?' },
+  { e: '🌱', r: () => rnd(2, 5), t: () => rnd(3, 7), unit: ' cm per day', one: 'day', x: 'days', y: 'cm tall',
+    q: (tot, t) => 'A bean plant grows the same amount every day. In <b>' + t + ' days</b> it grows <b>' + tot + ' cm</b>. How much does it grow <b>each day</b>?' },
+  { e: '📖', r: () => pick([5, 8, 10, 12, 15]), t: () => rnd(2, 6), unit: ' pages per day', one: 'day', x: 'days', y: 'pages read',
+    q: (tot, t) => 'Ravi reads the same number of pages every day. In <b>' + t + ' days</b> he reads <b>' + tot + ' pages</b>. How many pages does he read <b>each day</b>?' }
+];
+function genRateStory() {
+  const s = pick(RATES), r = s.r(), t = s.t(), tot = r * t;
+  const items = [{ t: 'seg', x1: 0, y1: 0, x2: t, y2: tot, color: 'c1' }];
+  for (let i = 1; i <= t; i++) items.push({ t: 'pt', x: i, y: r * i, color: 'c2', r: 4 });
+  items.push({ t: 'emoji', x: t, y: tot, text: s.e, dy: -20 });
+  return mc({
+    prompt: s.e + ' ' + s.q(tot, t),
+    graph: { xmin: -0.3, xmax: t + 0.7, ymin: -tot * 0.06, ymax: tot * 1.25, xLabel: s.x, yLabel: s.y, items },
+    correct: N(r) + s.unit, wrong: wrongNums(r, [tot, t, r + t, tot - t], s.unit),
+    hint: 'Share the total equally among the ' + s.x + ': ' + tot + ' ÷ ' + t + ' = ?',
+    explain: tot + ' ÷ ' + t + ' = <b>' + r + '</b>. Every ' + s.one + ' adds ' + r + ' more. A number like this is called a <b>rate</b>. It tells you how fast something changes. On the graph, a bigger rate makes a <b>steeper</b> line.' +
+      E('A rate is the slope of the graph: ' + m(tot + ' ÷ ' + t + ' = ' + r) + '.')
+  });
+}
+
+function genTripStory() {
+  const speeds = shuffle([0, pick([10, 20]), pick([30, 40])]);
+  const items = [];
+  let x = 0, y = 0;
+  const names = ['A', 'B', 'C'];
+  speeds.forEach((s, i) => {
+    const y2 = y + 2 * s;
+    items.push({ t: 'seg', x1: x, y1: y, x2: x + 2, y2, color: 'c1' });
+    items.push({ t: 'label', x: x + 1, y: (y + y2) / 2, text: names[i], dy: -14, color: 'c2' });
+    x += 2; y = y2;
+  });
+  const ask = pick(['stopped', 'fastest']);
+  const idx = ask === 'stopped' ? speeds.indexOf(0) : speeds.indexOf(Math.max(...speeds));
+  const opts = ['Part A', 'Part B', 'Part C'];
+  return mc({
+    prompt: '🚗 This graph tells the story of a car trip. It shows how far the car is from home over 6 hours. During which part was the car ' + (ask === 'stopped' ? '<b>parked (not moving)</b>' : 'going <b>fastest</b>') + '?',
+    graph: { xmin: -0.3, xmax: 6.5, ymin: -8, ymax: y + 25, xLabel: 'hours', yLabel: 'km from home', items },
+    correct: opts[idx], wrong: opts.filter((_, i) => i !== idx), fixed: opts,
+    hint: ask === 'stopped' ? 'If the car is not moving, its distance from home stays the same. What does that look like on the graph?' : 'Faster means more km in the same time. Look for the <b>steepest</b> part.',
+    explain: ask === 'stopped'
+      ? 'Part ' + names[idx] + ' is <b>flat</b>. The distance did not change for 2 hours, so the car was parked. A flat line means "no change".'
+      : 'Part ' + names[idx] + ' is the <b>steepest</b>: ' + 2 * speeds[idx] + ' km in 2 hours = ' + speeds[idx] + ' km per hour. Steeper line = faster car.'
+  });
+}
+
+function genSpeed() {
+  const t1 = rnd(0, 3), dt = pick([2, 3, 4]), v = rnd(1, 6), d1 = rnd(0, 8);
+  const t2 = t1 + dt, d2 = d1 + v * dt;
+  return mc({
+    prompt: '🚲 A cyclist is <b>' + d1 + ' m</b> from home at <b>' + t1 + ' seconds</b>. At <b>' + t2 + ' seconds</b> she is <b>' + d2 + ' m</b> from home. How fast was she riding, in metres per second?',
+    graph: { xmin: -0.5, xmax: t2 + 1, ymin: -2, ymax: d2 + 4, xLabel: 'seconds', yLabel: 'metres', items: [
+      { t: 'seg', x1: t1, y1: d1, x2: t2, y2: d2, color: 'c1' },
+      { t: 'pt', x: t1, y: d1, color: 'c2' }, { t: 'pt', x: t2, y: d2, color: 'c2' }, { t: 'emoji', x: t2, y: d2, text: '🚲', dy: -20 } ] },
+    correct: v + ' m/s', wrong: wrongNums(v, [d2 - d1, dt, v + 2], ' m/s'),
+    hint: 'How many metres did she ride? How many seconds did it take? Divide metres by seconds.',
+    explain: 'She rode ' + d2 + ' − ' + d1 + ' = ' + (d2 - d1) + ' m in ' + t2 + ' − ' + t1 + ' = ' + dt + ' s. Speed = ' + (d2 - d1) + ' ÷ ' + dt + ' = <b>' + v + ' m/s</b>.' +
+      E('Average rate of change = ' + m('Δy ÷ Δx') + ', the slope between the two points.')
+  });
+}
+
+function genHillSign() {
+  const k = pick(['pos', 'neg', 'zero']);
+  const slope = k === 'pos' ? pick([0.5, 1, 2]) : k === 'neg' ? pick([-0.5, -1, -2]) : 0;
+  const b = rnd(-2, 2);
+  const opts = ['Uphill ↗', 'Downhill ↘', 'Flat →'];
+  const correct = opts[k === 'pos' ? 0 : k === 'neg' ? 1 : 2];
+  return mc({
+    prompt: '🥾 A hiker walks along this path from <b>left to right</b>. Is the hiker going uphill, downhill, or on flat ground?',
+    graph: { xmin: -6, xmax: 6, ymin: -8, ymax: 8, items: [{ t: 'fn', f: x => slope * x + b, color: 'c3' }, { t: 'emoji', x: -3, y: slope * -3 + b, text: '🥾', dy: -14 }] },
+    correct, wrong: opts.filter(o => o !== correct), fixed: opts,
+    hint: 'Move your finger along the line from left to right. Does it go up, down, or stay level?',
+    explain: (slope > 0 ? 'The path rises as you walk right, so it goes <b>uphill</b>. That is a <b>positive</b> steepness.' : slope < 0 ? 'The path drops as you walk right, so it goes <b>downhill</b>. That is a <b>negative</b> steepness.' : 'The path stays level. Its steepness is <b>zero</b>.') +
+      E('The line is ' + m('y = ' + poly([[slope, 1], [b, 0]])) + ', slope ' + m(N(slope)) + '.')
+  });
+}
+
+// Engineer-only
 function genSlopeTwoPoints() {
   const [rise, run] = pick([[1,1],[2,1],[3,1],[-1,1],[-2,1],[-3,1],[1,2],[-1,2],[3,2],[-3,2],[2,3],[-2,3],[4,2],[-6,3]]);
   const x1 = rnd(-5, 5 - run), y1 = rnd(-3, 3), x2 = x1 + run, y2 = y1 + rise;
   const slope = rise / run;
-  const [ymin, ymax] = [Math.min(y1, y2, -1) - 2, Math.max(y1, y2, 1) + 2];
   return mc({
     prompt: 'A line passes through ' + m('A(' + N(x1) + ', ' + N(y1) + ')') + ' and ' + m('B(' + N(x2) + ', ' + N(y2) + ')') + '. What is its <b>slope</b>?',
-    graph: { xmin: -6, xmax: 6, ymin, ymax, items: [
+    graph: { xmin: -6, xmax: 6, ymin: Math.min(y1, y2, -1) - 2, ymax: Math.max(y1, y2, 1) + 2, items: [
       { t: 'fn', f: x => y1 + slope * (x - x1), color: 'c1' },
       { t: 'pt', x: x1, y: y1, label: 'A', color: 'c2' }, { t: 'pt', x: x2, y: y2, label: 'B', color: 'c2' } ],
       reveal: [
@@ -304,56 +431,101 @@ function genSlopeTwoPoints() {
         { t: 'label', x: (x1 + x2) / 2, y: y1, text: 'run ' + N(run), color: 'c3', dy: rise > 0 ? 16 : -8 },
         { t: 'label', x: x2, y: (y1 + y2) / 2, text: 'rise ' + N(rise), color: 'c4', dx: 8 } ] },
     correct: m(frac(rise, run)),
-    wrong: [frac(run, rise), frac(-rise, run), N(rise), N(rise + run), frac(rise + 1, run)].map(m),
-    hint: 'Slope = rise ÷ run = ' + m('(y₂ − y₁) ÷ (x₂ − x₁)') + '. How far up/down do you go, and how far right?',
-    explain: 'Rise = ' + m(N(y2) + ' − ' + (y1 < 0 ? '(' + N(y1) + ')' : N(y1)) + ' = ' + N(rise)) + ', run = ' + m(N(x2) + ' − ' + (x1 < 0 ? '(' + N(x1) + ')' : N(x1)) + ' = ' + N(run)) + '. Slope = ' + m(N(rise) + ' ÷ ' + N(run) + ' = ' + frac(rise, run)) + '.'
+    wrong: [frac(run, rise), frac(-rise, run), N(rise), N(rise + run), frac(rise + 1, run), frac(rise + 2, run)].map(m),
+    hint: 'Slope = rise ÷ run = ' + m('(y₂ − y₁) ÷ (x₂ − x₁)') + '.',
+    explain: 'Rise = ' + m(N(rise)) + ', run = ' + m(N(run)) + '. Slope = ' + m(N(rise) + ' ÷ ' + N(run) + ' = ' + frac(rise, run)) + '.'
   });
 }
-
-function genSlopeSign() {
-  const k = pick(['pos', 'neg', 'zero']);
-  const slope = k === 'pos' ? pick([0.5, 1, 2, 3]) : k === 'neg' ? pick([-0.5, -1, -2, -3]) : 0;
-  const b = rnd(-3, 3);
-  const opts = ['Positive ↗ (uphill)', 'Negative ↘ (downhill)', 'Zero → (flat)'];
-  const correct = opts[k === 'pos' ? 0 : k === 'neg' ? 1 : 2];
-  return mc({
-    prompt: 'Walking from <b>left to right</b> along this line, is the slope positive, negative, or zero?',
-    graph: { xmin: -6, xmax: 6, ymin: -8, ymax: 8, items: [{ t: 'fn', f: x => slope * x + b, color: 'c1' }] },
-    correct, wrong: opts.filter(o => o !== correct), fixed: opts,
-    hint: 'Read the graph like a hiker walking to the right: going up, going down, or staying level?',
-    explain: 'This line is ' + m('y = ' + poly([[slope, 1], [b, 0]])) + ', so its slope is ' + m(N(slope)) + '. ' +
-      (slope > 0 ? 'Positive slope means y increases as x increases.' : slope < 0 ? 'Negative slope means y decreases as x increases.' : 'Zero slope means y never changes — a flat line.')
-  });
-}
-
 function genSlopeFromEq() {
   const s = pick([-4, -3, -2, -1, 1, 2, 3, 4]);
   let b = rnd(-5, 5); if (b === s || b === 0) b = s + 3;
   return mc({
     prompt: 'What is the slope of the line ' + m('y = ' + poly([[s, 1], [b, 0]])) + '?',
     graph: { xmin: -6, xmax: 6, ymin: -10, ymax: 10, items: [{ t: 'fn', f: x => s * x + b, color: 'c1' }, { t: 'pt', x: 0, y: b, color: 'c2', label: '(0, ' + N(b) + ')' }] },
-    correct: m(N(s)), wrong: [N(b), N(-s), N(s + b), N(s * 2)].map(m),
-    hint: 'In ' + m('y = mx + b') + ', the number multiplied by x (m) is the slope; b is where the line crosses the y-axis.',
-    explain: 'In ' + m('y = mx + b') + ' form, m = ' + m(N(s)) + ' is the slope: every step right, y changes by ' + m(N(s)) + '. The ' + m(N(b)) + ' is just the y-intercept.'
+    correct: m(N(s)), wrong: [N(b), N(-s), N(s + b), N(s * 2), N(s + 10)].map(m),
+    hint: 'In ' + m('y = mx + b') + ', m (the number times x) is the slope.',
+    explain: 'In ' + m('y = mx + b') + ', ' + m('m = ' + N(s)) + ' is the slope. ' + m(N(b)) + ' is where the line crosses the y-axis.'
   });
 }
 
-function genSpeed() {
-  const t1 = rnd(0, 3), dt = pick([2, 3, 4]), v = rnd(1, 6), d1 = rnd(0, 8);
-  const t2 = t1 + dt, d2 = d1 + v * dt;
+/* =====================================================================
+   WORLD 2 — Getting Closer (limits)
+   ===================================================================== */
+function genHalfway() {
+  const d0 = pick([16, 32, 64, 80]);
+  if (Math.random() < 0.5) {
+    const n = rnd(2, 4), ans = d0 / Math.pow(2, n);
+    return mc({
+      prompt: '🚶 You stand <b>' + d0 + ' m</b> from a wall 🧱. Each step, you walk <b>half</b> of the distance that is left. How far from the wall are you after <b>' + n + ' steps</b>?',
+      correct: N(ans) + ' m', wrong: wrongNums(ans, [d0 / (2 * n), d0 / Math.pow(2, n - 1), d0 - n, 0], ' m'),
+      hint: 'Halve it, then halve it again… ' + d0 + ' → ' + d0 / 2 + ' → …',
+      explain: Array.from({ length: n + 1 }, (_, i) => N(d0 / Math.pow(2, i))).join(' → ') + ' m. After ' + n + ' steps you are <b>' + N(ans) + ' m</b> away.'
+    });
+  }
   return mc({
-    prompt: '🚲 A cyclist is <b>' + d1 + ' m</b> from home at <b>t = ' + t1 + ' s</b> and <b>' + d2 + ' m</b> from home at <b>t = ' + t2 + ' s</b>. What is the average speed (the <i>average rate of change</i>) between those times?',
-    graph: { xmin: -0.5, xmax: t2 + 1, ymin: -2, ymax: d2 + 4, xLabel: 'time (s)', yLabel: 'distance (m)', items: [
-      { t: 'seg', x1: t1, y1: d1, x2: t2, y2: d2, color: 'c1' },
-      { t: 'pt', x: t1, y: d1, color: 'c2' }, { t: 'pt', x: t2, y: d2, color: 'c2' } ] },
-    correct: v + ' m/s',
-    wrong: [(d2 - d1) + ' m/s', frac(d2, t2) + ' m/s', dt + ' m/s', (v + 1) + ' m/s', (v * 2) + ' m/s', (v + 2) + ' m/s', (v + 3) + ' m/s'],
-    hint: 'Average rate of change = (change in distance) ÷ (change in time). That is just a slope!',
-    explain: 'Change in distance = ' + d2 + ' − ' + d1 + ' = ' + (d2 - d1) + ' m. Change in time = ' + t2 + ' − ' + t1 + ' = ' + dt + ' s. Speed = ' + (d2 - d1) + ' ÷ ' + dt + ' = <b>' + v + ' m/s</b>. Speed is the slope of the distance–time graph.'
+    prompt: '🚶 You stand <b>' + d0 + ' m</b> from a wall 🧱. Each step, you walk <b>half</b> of the distance that is left. If you could keep going forever, what number does your distance get <b>closer and closer to</b>?',
+    table: { head: ['Steps', 0, 1, 2, 3, 4, 5, 6], rows: [['Distance (m)', ...[0, 1, 2, 3, 4, 5, 6].map(i => N(d0 / Math.pow(2, i)))]] },
+    correct: '0 m (the wall)', wrong: [d0 / 2 + ' m', '1 m', 'It gets bigger and bigger'],
+    hint: 'Look at the bottom row. Does it ever stop shrinking? What is it heading toward?',
+    explain: 'The distance keeps halving: it gets closer and closer to <b>0</b>. You never quite touch the wall, but 0 is where you are heading. That target is called the <b>limit</b>.' +
+      E(m(lim('∞', 'n') + d0 + ' ÷ 2ⁿ = 0'))
   });
 }
 
-// ---- World 2: Limit Lake
+function genCooling() {
+  const T = pick([20, 22, 25, 28, 30]), start = pick([80, 90]);
+  const f = t => T + (start - T) * Math.exp(-t / 8);
+  return mc({
+    prompt: '🍲 Hot soup at <b>' + start + '°C</b> is left on the table in a room that is <b>' + T + '°C</b>. The graph shows it cooling. What temperature does the soup get <b>closer and closer to</b>?',
+    graph: { xmin: -1, xmax: 45, ymin: 0, ymax: start + 10, xLabel: 'minutes', yLabel: '°C', items: [{ t: 'fn', f, color: 'c2' }, { t: 'emoji', x: 3, y: f(3), text: '🍲', dy: -20 }],
+      reveal: [{ t: 'line', x: 0, y: T, slope: 0, color: 'c3', dash: true }, { t: 'label', x: 38, y: T, text: 'room: ' + T + '°C', dy: -12, color: 'c3' }] },
+    correct: T + '°C', wrong: ['0°C', start + '°C', (T - 10) + '°C', (T + 10) + '°C'],
+    hint: 'Can soup sitting on a table get colder than the room around it?',
+    explain: 'The soup cools fast at first, then slower and slower. It gets closer and closer to the room temperature, <b>' + T + '°C</b>, but never colder. ' + T + '°C is the <b>limit</b>.' +
+      E(m(lim('∞', 't') + 'T(t) = ' + T + '°C') + ' (Newton\'s law of cooling).')
+  });
+}
+
+const SEQS = [
+  { s: '0.9, 0.99, 0.999, 0.9999, …', ans: '1', wrong: ['0.99999', '0', '10', 'There is no target'] },
+  { s: '2.1, 2.01, 2.001, 2.0001, …', ans: '2', wrong: ['2.1', '0', '3', 'There is no target'] },
+  { s: '4.9, 4.99, 4.999, 4.9999, …', ans: '5', wrong: ['4', '4.9', '0', 'There is no target'] },
+  { s: '1, 1.5, 1.75, 1.875, 1.9375, …', ans: '2', wrong: ['1', '1.9', '3', 'There is no target'] }
+];
+function genSequence() {
+  if (Math.random() < 0.3) {
+    return mc({
+      prompt: '🍕 One pizza is shared equally among 10 friends, then 100 friends, then 1,000, then 1,000,000. What does the size of each slice get closer and closer to?',
+      table: { head: ['Friends', 10, 100, 1000, '1,000,000'], rows: [['Each slice (pizza)', 0.1, 0.01, 0.001, 0.000001]] },
+      correct: '0 (slices become tiny)', wrong: ['1 pizza', '0.1 pizza', '10 pizzas'],
+      hint: 'More friends means smaller slices. How small can they get?',
+      explain: 'The slices get smaller and smaller, heading toward <b>0</b>. That is the limit.' + E(m(lim('∞', 'n') + '1/n = 0'))
+    });
+  }
+  const q = pick(SEQS);
+  return mc({
+    prompt: '🔢 These numbers follow a pattern: <b>' + q.s + '</b>. What number are they getting <b>closer and closer to</b>?',
+    correct: q.ans, wrong: q.wrong,
+    hint: 'How far is each number from a nice whole number? Is that gap shrinking?',
+    explain: 'The gap to <b>' + q.ans + '</b> keeps shrinking (0.1, 0.01, 0.001…). The numbers never stop getting closer, so ' + q.ans + ' is the <b>limit</b>.'
+  });
+}
+
+function genHoleStory() {
+  const k = rnd(-1, 3), a = rnd(-2, 3), L = a + k, fa = L + pick([2, -2, 3]);
+  return mc({
+    prompt: '🌉 A bridge has a <b>missing plank</b> (the open circle) at the ' + N(a) + ' m mark, and someone left a 🎈 balloon floating nearby (the solid dot). Walking toward the ' + N(a) + ' m mark from either side, what <b>height</b> is the bridge leading you to?' +
+      E('In symbols: ' + m(lim(N(a)) + 'f(x)') + ' = ?'),
+    graph: { xmin: -5, xmax: 5, ymin: Math.min(L, fa, 0) - 4, ymax: Math.max(L, fa, 0) + 4, items: [
+      { t: 'fn', f: x => x + k, color: 'c1' }, { t: 'hole', x: a, y: L, color: 'c1' }, { t: 'pt', x: a, y: fa, color: 'c2' } ] },
+    correct: N(L) + ' m', wrong: [N(fa) + ' m', 'Nowhere, the plank is missing', N(a) + ' m', N(L + 1) + ' m'],
+    hint: 'Ignore the balloon. Follow the bridge from both sides. Where do both sides point to?',
+    explain: 'From both sides the bridge heads to height <b>' + N(L) + '</b>, even though that exact plank is missing. A limit is about where you are <b>heading</b>, not what is exactly at the spot.' +
+      E(m(lim(N(a)) + 'f(x) = ' + N(L)) + ' even though ' + m('f(' + N(a) + ') = ' + N(fa)) + '.')
+  });
+}
+
+// Engineer-only
 function genLimitSub() {
   const a = pick([1, 2, 3, 4, -1, -2, -3]), b = rnd(-5, 5), c = rnd(-3, 4);
   const ans = a * c + b;
@@ -362,224 +534,303 @@ function genLimitSub() {
     graph: { xmin: -5, xmax: 5, ymin: Math.min(ans, 0) - 6, ymax: Math.max(ans, 0) + 6, items: [
       { t: 'fn', f: x => a * x + b, color: 'c1' }, { t: 'vline', x: c, color: 'c4' } ],
       reveal: [{ t: 'pt', x: c, y: ans, color: 'c2', label: '(' + N(c) + ', ' + N(ans) + ')' }] },
-    correct: m(N(ans)), wrong: numWrong(ans, [a + b, c, a * c - b, b]).map(m).concat(['Does not exist']),
-    hint: 'A straight line has no gaps or jumps, so you can just plug x = ' + N(c) + ' in.',
+    correct: m(N(ans)), wrong: [a + b, c, a * c - b, b, ans + 1, ans - 1].map(v => m(N(v))).concat(['Does not exist']),
+    hint: 'A line has no gaps, so plug in x = ' + N(c) + '.',
     explain: 'Lines are continuous, so substitute: ' + m(N(a) + '·(' + N(c) + ')' + (b < 0 ? ' − ' + N(-b) : ' + ' + N(b)) + ' = ' + N(ans)) + '.'
   });
 }
-
 function genLimitTable() {
   const a = rnd(1, 5);
   const xs = [a - 0.1, a - 0.01, a - 0.001, a, a + 0.001, a + 0.01, a + 0.1];
   return mc({
-    prompt: 'Let ' + m('f(x) = (x<sup>2</sup> − ' + a * a + ') ÷ (x − ' + a + ')') + '. Notice ' + m('f(' + a + ')') + ' is <b>0 ÷ 0</b> (undefined)! Use the table to find ' + m(lim(a) + 'f(x)') + '.',
-    table: { head: ['x', ...xs.map(x => +x.toFixed(3))], rows: [['f(x)', ...xs.map(x => x === a ? { v: 'undefined', hl: true } : (x + a).toFixed(3))]] },
+    prompt: 'Let ' + m('f(x) = (x<sup>2</sup> − ' + a * a + ') ÷ (x − ' + a + ')') + '. ' + m('f(' + a + ')') + ' is 0 ÷ 0. Use the table to find ' + m(lim(a) + 'f(x)') + '.',
+    table: { head: ['x', ...xs.map(x => +x.toFixed(3))], rows: [['f(x)', ...xs.map(x => x === a ? { v: '0 ÷ 0', hl: true } : (x + a).toFixed(3))]] },
     correct: m(N(2 * a)), wrong: ['Does not exist', m(N(a)), m(N(a * a)), m('0')],
-    hint: 'Look at the numbers on both sides of x = ' + a + '. What value are they squeezing toward?',
-    explain: 'From both sides, f(x) gets closer and closer to <b>' + 2 * a + '</b> — even though f(' + a + ') itself is undefined. Algebra agrees: ' + m('(x − ' + a + ')(x + ' + a + ') ÷ (x − ' + a + ') = x + ' + a) + ' → ' + m(a + ' + ' + a + ' = ' + 2 * a) + '.'
+    hint: 'What value do both sides of the table squeeze toward?',
+    explain: 'Both sides approach <b>' + 2 * a + '</b>. Factoring: ' + m('(x − ' + a + ')(x + ' + a + ') ÷ (x − ' + a + ') = x + ' + a) + ' → ' + 2 * a + '.'
   });
 }
-
-function genLimitHole() {
-  const k = rnd(-2, 3), a = rnd(-2, 3), L = a + k, fa = L + pick([2, -2, 3, -3]);
-  return mc({
-    prompt: 'The graph of f has an open circle (hole) and a solid dot at ' + m('x = ' + N(a)) + '. What is ' + m(lim(N(a)) + 'f(x)') + '?',
-    graph: { xmin: -5, xmax: 5, ymin: Math.min(L, fa, 0) - 4, ymax: Math.max(L, fa, 0) + 4, items: [
-      { t: 'fn', f: x => x + k, color: 'c1' }, { t: 'hole', x: a, y: L, color: 'c1' }, { t: 'pt', x: a, y: fa, color: 'c2' } ] },
-    correct: m(N(L)), wrong: [m(N(fa)), 'Does not exist', m(N(a)), m(N(k)), m(N(L + 1))],
-    hint: 'A limit is about where the curve is <b>heading</b> as x gets close to ' + N(a) + ' — not the value exactly at ' + N(a) + '.',
-    explain: 'As x approaches ' + N(a) + ' from either side, the line heads to the hole at height <b>' + N(L) + '</b>. The solid dot says f(' + N(a) + ') = ' + N(fa) + ', but the limit ignores what happens exactly at that point.'
-  });
-}
-
 function genLimitInf() {
-  if (Math.random() < 0.5) {
-    const k = rnd(2, 9);
-    const xs = [10, 100, 1000, 10000];
-    return mc({
-      prompt: 'What happens to ' + m('f(x) = ' + k + ' ÷ x') + ' as x grows forever? Find ' + m(lim('∞') + k + '/x') + '.',
-      table: { head: ['x', ...xs], rows: [['f(x)', ...xs.map(x => +(k / x).toFixed(4))]] },
-      correct: m('0'), wrong: [m(N(k)), m('∞'), 'Does not exist'],
-      hint: 'Divide a fixed number by a gigantic number. What does it look like?',
-      explain: k + ' split into more and more pieces makes each piece tinier and tinier, so ' + m(k + '/x → 0') + '.'
-    });
-  }
   const a = rnd(2, 6), xs = [10, 100, 1000, 10000];
   return mc({
     prompt: 'Find ' + m(lim('∞') + '(' + a + 'x + 1) ÷ x') + '.',
     table: { head: ['x', ...xs], rows: [['f(x)', ...xs.map(x => +((a * x + 1) / x).toFixed(4))]] },
     correct: m(N(a)), wrong: [m('0'), m(N(a + 1)), m('∞'), 'Does not exist'],
-    hint: 'Split it up: ' + m('(' + a + 'x + 1)/x = ' + a + ' + 1/x') + '. What does 1/x do as x grows?',
-    explain: m('(' + a + 'x + 1)/x = ' + a + ' + 1/x') + ', and ' + m('1/x → 0') + ', so the limit is <b>' + a + '</b>. The table shows it creeping toward ' + a + '.'
+    hint: m('(' + a + 'x + 1)/x = ' + a + ' + 1/x') + '. What does 1/x do as x grows?',
+    explain: m('(' + a + 'x + 1)/x = ' + a + ' + 1/x') + ' and ' + m('1/x → 0') + ', so the limit is <b>' + a + '</b>.'
   });
 }
 
-// ---- World 3: Tangent Tower
-const CURVES = [
+/* =====================================================================
+   WORLD 3 — Speed Right Now (derivative)
+   ===================================================================== */
+function genFastestMoment() {
+  const kind = pick(['speeding', 'slowing']);
+  const f = kind === 'speeding' ? x => x * x / 2 : x => 8 - (4 - x) * (4 - x) / 2;
+  const d = kind === 'speeding' ? x => x : x => 4 - x;
+  const xs = [0.5, 2, 3.5], names = ['A', 'B', 'C'];
+  const ask = pick(['fastest', 'slowest']);
+  const sl = xs.map(d);
+  const idx = sl.indexOf(ask === 'fastest' ? Math.max(...sl) : Math.min(...sl));
+  const opts = ['Moment A', 'Moment B', 'Moment C'];
+  return mc({
+    prompt: '🚗 This graph shows how far a car has travelled. At which moment, A, B or C, is the car going <b>' + ask + '</b>?',
+    graph: { xmin: -0.3, xmax: 4.3, ymin: -0.8, ymax: 9, xLabel: 'time', yLabel: 'distance', items: [
+      { t: 'fn', f, color: 'c1' }, ...xs.map((x, i) => ({ t: 'pt', x, y: f(x), color: 'c2', label: names[i] })) ],
+      reveal: xs.map(x => ({ t: 'line', x, y: f(x), slope: d(x), color: 'c3', dash: true, len: 0.9 })) },
+    correct: opts[idx], wrong: opts.filter((_, i) => i !== idx), fixed: opts,
+    hint: 'Fast = the graph is <b>steep</b> there. Slow = the graph is <b>nearly flat</b> there.',
+    explain: 'The green lines show how steep the graph is at each moment. Moment ' + names[idx] + ' is the ' + (ask === 'fastest' ? 'steepest' : 'flattest') + ', so the car is ' + ask + ' there. ' +
+      (kind === 'speeding' ? 'This car is speeding up.' : 'This car is slowing down, like approaching a red light 🚦.') +
+      E('Speed is the derivative of distance: steeper tangent = bigger ' + m("s′(t)") + '.')
+  });
+}
+
+function genBallTop() {
+  const v = pick([10, 20, 30]), top = v / 10, H = v * v / 20;
+  const f = t => v * t - 5 * t * t;
+  const base = { graph: { xmin: -0.2, xmax: 2 * top + 0.2, ymin: -H * 0.08, ymax: H * 1.3, xLabel: 'seconds', yLabel: 'height (m)', items: [
+    { t: 'fn', f: t => (t >= 0 && t <= 2 * top) ? f(t) : NaN, color: 'c1' }, { t: 'emoji', x: top, y: H, text: '⚽', dy: -16 } ],
+    reveal: [{ t: 'line', x: top, y: H, slope: 0, color: 'c3', dash: true }] } };
+  if (Math.random() < 0.5) {
+    return mc(Object.assign(base, {
+      prompt: '⚽ You kick a ball straight up. The graph shows its height. At the <b>very top</b>, how fast is the ball moving?',
+      correct: '0 m/s, it stops for an instant', wrong: [v + ' m/s', v / 2 + ' m/s', 'As fast as it can go'],
+      hint: 'Going up… then coming down. In between, it has to turn around. How fast is it at the turn?',
+      explain: 'At the top the ball stops going up and starts coming down. For one instant its speed is <b>0</b>, and the graph is <b>flat</b> there (green line).' +
+        E('Maximum ⇒ ' + m("h′(t) = 0") + '. Here ' + m("h′(t) = " + v + " − 10t = 0") + ' at ' + m('t = ' + top) + '.')
+    }));
+  }
+  return mc(Object.assign(base, {
+    prompt: '⚽ You kick a ball straight up. The graph shows its height. At what time does it reach the <b>top</b>, where it stops for an instant?',
+    correct: top + ' s', wrong: [2 * top + ' s', top + 1 + ' s', H + ' s', top + 0.5 + ' s'],
+    hint: 'Find the highest point of the curve and read the time below it.',
+    explain: 'The top is at <b>' + top + ' s</b> (height ' + H + ' m). There the graph is flat, so the speed is 0. It lands at ' + 2 * top + ' s.' +
+      E('Solve ' + m("h′(t) = " + v + " − 10t = 0") + ' → ' + m('t = ' + top) + '.')
+  }));
+}
+
+function genZoomSpeed() {
+  const a = rnd(1, 3), hs = [1, 0.1, 0.01, 0.001];
+  return mc({
+    prompt: '🏃 A runner speeds up: her distance in metres is <b>time × time</b>. To find her speed at <b>exactly ' + a + ' seconds</b>, we measure her average speed over <b>shorter and shorter</b> time gaps starting at ' + a + ' s. What is her speed at exactly ' + a + ' s?',
+    table: { head: ['Time gap (s)', ...hs], rows: [['Average speed (m/s)', ...hs.map(h => +(2 * a + h).toFixed(3))]] },
+    graph: { xmin: -0.3, xmax: a + 2, ymin: -1, ymax: (a + 1.6) * (a + 1.6), xLabel: 'seconds', yLabel: 'metres', items: [
+      { t: 'fn', f: x => x >= 0 ? x * x : NaN, color: 'c1' },
+      { t: 'line', x: a, y: a * a, slope: 2 * a + 1, color: 'c4', dash: true },
+      { t: 'pt', x: a, y: a * a, color: 'c2' } ],
+      reveal: [{ t: 'line', x: a, y: a * a, slope: 2 * a, color: 'c3' }] },
+    correct: 2 * a + ' m/s', wrong: [2 * a + 1 + ' m/s', a * a + ' m/s', a + ' m/s', 'We can never know'],
+    hint: 'Look at the bottom row. As the gap gets tiny, what number is the speed settling on?',
+    explain: 'The averages ' + (2 * a + 1) + ', ' + (2 * a + 0.1) + ', ' + (2 * a + 0.01) + '… get closer and closer to <b>' + 2 * a + ' m/s</b>. That is her speed right now (the green line). This "speed right now" is called the <b>derivative</b>.' +
+      E(m("f′(a) = " + lim('0', 'h') + "[f(a+h) − f(a)] ÷ h") + '. For ' + m('f(t) = t²') + ': ' + m("f′(" + a + ") = " + 2 * a) + '.')
+  });
+}
+
+const HILLS = [
   { f: x => x * x, d: x => 2 * x, name: 'x<sup>2</sup>', dname: '2x' },
   { f: x => x * x / 2, d: x => x, name: 'x<sup>2</sup>/2', dname: 'x' },
   { f: x => 4 - x * x, d: x => -2 * x, name: '4 − x<sup>2</sup>', dname: '−2x' },
-  { f: x => x * x * x / 3, d: x => x * x, name: 'x<sup>3</sup>/3', dname: 'x<sup>2</sup>' }
+  { f: x => 4 - x * x / 2, d: x => -x, name: '4 − x<sup>2</sup>/2', dname: '−x' }
 ];
-
 function genTangentSlider() {
-  const c = pick(CURVES), x0 = rnd(-2, 2), y0 = c.f(x0), target = c.d(x0);
+  const c = pick(HILLS), x0 = rnd(-2, 2), y0 = c.f(x0), target = c.d(x0);
   const [ymin, ymax] = range(c.f, -3.5, 3.5);
   return {
     type: 'slider', min: -6, max: 6, step: 0.5, target, x0, y0,
-    prompt: 'Drag the slider to tilt the orange line until it just <b>touches</b> ' + m('f(x) = ' + c.name) + ' at the dot ' + m('(' + N(x0) + ', ' + N(y0) + ')') + ' without cutting across. That\'s the <b>tangent line</b>!',
-    graph: { xmin: -3.5, xmax: 3.5, ymin, ymax, items: [{ t: 'fn', f: c.f, color: 'c1' }, { t: 'pt', x: x0, y: y0, color: 'c2' }],
-      reveal: [{ t: 'line', x: x0, y: y0, slope: target, color: 'c3', dash: true }] },
-    hint: 'Near the dot, the line should hug the curve. Try zooming your eyes in: if the line crosses the curve, adjust the tilt. (Bonus: the derivative of ' + m(c.name) + ' is ' + m(c.dname) + '.)',
-    explain: 'The tangent slope at ' + m('x = ' + N(x0)) + ' is ' + m('f′(' + N(x0) + ') = ' + N(target)) + '. That slope <b>is</b> the derivative — for ' + m('f(x) = ' + c.name) + ', ' + m('f′(x) = ' + c.dname) + '. (Green dashed line = exact tangent.)'
+    prompt: '⛷️ A skier stands at the orange dot. Move the slider to tilt the orange ski until it lies <b>exactly along the snow</b> under the skier. It should touch the hill there without cutting into it.' +
+      E('Find the tangent slope of ' + m('f(x) = ' + c.name) + ' at ' + m('x = ' + N(x0)) + '.'),
+    graph: { xmin: -3.5, xmax: 3.5, ymin, ymax, items: [{ t: 'fn', f: c.f, color: 'c3' }, { t: 'pt', x: x0, y: y0, color: 'c2' }, { t: 'emoji', x: x0, y: y0, text: '⛷️', dy: -22 }],
+      reveal: [{ t: 'line', x: x0, y: y0, slope: target, color: 'c1', dash: true }] },
+    hint: 'Look closely at the dot. Uphill to the right = positive numbers. Downhill to the right = negative numbers. Flat = 0.',
+    explain: 'The right tilt is <b>' + N(target) + '</b> (the dashed blue line). That is how steep the hill is <b>exactly at the skier</b>, its "steepness right now".' +
+      E('Tangent slope = derivative: ' + m("f′(x) = " + c.dname) + ', so ' + m("f′(" + N(x0) + ") = " + N(target)) + '.')
   };
 }
 
-function genSecantTable() {
-  const a = rnd(1, 3), hs = [1, 0.1, 0.01, 0.001];
+function genCoaster() {
+  const c = pick([
+    { f: x => x * x - 2, d: x => 2 * x, name: 'x<sup>2</sup> − 2' },
+    { f: x => 3 - x * x, d: x => -2 * x, name: '3 − x<sup>2</sup>' },
+    { f: x => x * x * x / 3 - x, d: x => x * x - 1, name: 'x<sup>3</sup>/3 − x' } ]);
+  const x0 = pick([-2, -1, 0, 1, 2]), y0 = c.f(x0), d = c.d(x0);
+  const opts = ['Going uphill ↗', 'Going downhill ↘', 'Flat for an instant →'];
+  const correct = opts[d > 0 ? 0 : d < 0 ? 1 : 2];
+  const [ymin, ymax] = range(c.f, -3, 3);
   return mc({
-    prompt: 'For ' + m('f(x) = x<sup>2</sup>') + ', the table shows the slope of the <b>secant line</b> from ' + m('x = ' + a) + ' to ' + m('x = ' + a + ' + h') + '. As h shrinks toward 0, what is the slope of the <b>tangent</b> at ' + m('x = ' + a) + '?',
-    table: { head: ['h', ...hs], rows: [['secant slope', ...hs.map(h => +(2 * a + h).toFixed(3))]] },
-    graph: { xmin: -1, xmax: a + 2.5, ymin: -2, ymax: (a + 2) * (a + 2), items: [
-      { t: 'fn', f: x => x * x, color: 'c1' },
-      { t: 'line', x: a, y: a * a, slope: 2 * a + 1, color: 'c4', dash: true },
-      { t: 'pt', x: a, y: a * a, color: 'c2' }, { t: 'pt', x: a + 1, y: (a + 1) * (a + 1), color: 'c4', label: 'h = 1' } ],
-      reveal: [{ t: 'line', x: a, y: a * a, slope: 2 * a, color: 'c3' }] },
-    correct: m(N(2 * a)), wrong: [m(N(2 * a + 1)), m(N(a * a)), m(N(a)), 'Does not exist'],
-    hint: 'Look at the pattern in the bottom row. What number is it getting closer to?',
-    explain: 'Secant slopes ' + (2 * a + 1) + ', ' + (2 * a + 0.1) + ', ' + (2 * a + 0.01) + '… approach <b>' + 2 * a + '</b>. The derivative is literally this limit: ' + m('f′(a) = ' + lim('0').replace('x→', 'h→') + '[f(a+h) − f(a)] ÷ h') + '.'
+    prompt: '🎢 A roller-coaster cart rolls along this track from left to right. Right at the dot, is the cart going uphill, downhill, or is the track flat?' +
+      E('Equivalently: is ' + m("f′(" + N(x0) + ")") + ' positive, negative or zero for ' + m('f(x) = ' + c.name) + '?'),
+    graph: { xmin: -3, xmax: 3, ymin: Math.max(ymin, -7), ymax: Math.min(ymax, 8), items: [{ t: 'fn', f: c.f, color: 'c4' }, { t: 'pt', x: x0, y: y0, color: 'c2' }, { t: 'emoji', x: x0, y: y0, text: '🛒', dy: -16 }],
+      reveal: [{ t: 'line', x: x0, y: y0, slope: d, color: 'c3', dash: true }] },
+    correct, wrong: opts.filter(o => o !== correct), fixed: opts,
+    hint: 'Zoom your eyes in at the dot. Ignore the rest of the track. Which way does the track point right there?',
+    explain: 'The green line shows the track\'s direction at the dot: steepness ' + N(d) + '. ' + (d > 0 ? 'Positive, so uphill.' : d < 0 ? 'Negative, so downhill.' : 'Zero, so flat (a top or bottom of the ride).')
   });
 }
 
+// Engineer-only
 function genFlatTangent() {
   let h = rnd(-3, 3); if (h === 0) h = 2;
   const k = rnd(-3, 2);
   const inner = h > 0 ? '(x − ' + h + ')' : '(x + ' + (-h) + ')';
   const ks = k === 0 ? '' : k > 0 ? ' + ' + k : ' − ' + (-k);
   return mc({
-    prompt: 'At what x-value does ' + m('f(x) = ' + inner + '<sup>2</sup>' + ks) + ' have a <b>horizontal</b> tangent line (slope 0)?',
+    prompt: 'At what x does ' + m('f(x) = ' + inner + '<sup>2</sup>' + ks) + ' have a horizontal tangent (' + m("f′(x) = 0") + ')?',
     graph: { xmin: -6, xmax: 6, ymin: k - 2, ymax: k + 10, items: [{ t: 'fn', f: x => (x - h) * (x - h) + k, color: 'c1' }],
       reveal: [{ t: 'line', x: h, y: k, slope: 0, color: 'c3', dash: true }, { t: 'pt', x: h, y: k, color: 'c2', label: '(' + N(h) + ', ' + N(k) + ')' }] },
     correct: m('x = ' + N(h)), wrong: [m('x = ' + N(-h)), m('x = 0'), m('x = ' + N(k)), m('x = ' + N(h + 1))],
-    hint: 'A flat tangent happens at the very bottom of a valley (or top of a hill). Where is the bottom of this U?',
-    explain: 'The bottom of the valley is at ' + m('x = ' + N(h)) + '. There the curve stops going down and starts going up, so the tangent is flat: ' + m('f′(' + N(h) + ') = 0') + '.'
+    hint: 'A flat tangent is at the bottom of the valley.',
+    explain: m("f′(x) = 2" + inner) + ' = 0 at ' + m('x = ' + N(h)) + ', the vertex.'
   });
 }
 
-function genDerivSign() {
-  const c = pick([
-    { f: x => x * x - 2, d: x => 2 * x, name: 'x<sup>2</sup> − 2' },
-    { f: x => 3 - x * x, d: x => -2 * x, name: '3 − x<sup>2</sup>' },
-    { f: x => x * x * x / 3 - x, d: x => x * x - 1, name: 'x<sup>3</sup>/3 − x' } ]);
-  const x0 = pick([-2, -1, 0, 1, 2]), y0 = c.f(x0), d = c.d(x0);
-  const opts = ['Positive (rising)', 'Negative (falling)', 'Zero (flat)'];
-  const correct = opts[d > 0 ? 0 : d < 0 ? 1 : 2];
-  const [ymin, ymax] = range(c.f, -3, 3);
+/* =====================================================================
+   WORLD 4 — Pattern Dojo (derivative rules)
+   ===================================================================== */
+function genRuleApply() {
+  const v = pick([
+    { e: '⚽', who: 'A ball rolls down a ramp', dist: 'time × time', speed: '2 × time', k: 2, dv: t => t * t, eng: "d/dt (t²) = 2t" },
+    { e: '🪨', who: 'A stone falls off a cliff', dist: '5 × time × time', speed: '10 × time', k: 10, dv: t => 5 * t * t, eng: "d/dt (5t²) = 10t" } ]);
+  const t = rnd(2, 9), ans = v.k * t;
   return mc({
-    prompt: 'For ' + m('f(x) = ' + c.name) + ', is ' + m('f′(' + N(x0) + ')') + ' positive, negative, or zero? (Look at the dot.)',
-    graph: { xmin: -3, xmax: 3, ymin: Math.max(ymin, -7), ymax: Math.min(ymax, 8), items: [{ t: 'fn', f: c.f, color: 'c1' }, { t: 'pt', x: x0, y: y0, color: 'c2' }],
-      reveal: [{ t: 'line', x: x0, y: y0, slope: d, color: 'c3', dash: true }] },
-    correct, wrong: opts.filter(o => o !== correct), fixed: opts,
-    hint: 'The derivative is the slope of the curve. At the dot, moving right, is the curve going up, down, or level?',
-    explain: 'At ' + m('x = ' + N(x0)) + ' the tangent line (green) has slope ' + m(N(d)) + '. ' + (d > 0 ? 'The curve is rising there.' : d < 0 ? 'The curve is falling there.' : 'The curve is momentarily flat there.')
+    prompt: v.e + ' ' + v.who + '. Its distance in metres is <b>' + v.dist + '</b>. The pattern says its speed is <b>' + v.speed + '</b>. How fast is it going at <b>' + t + ' seconds</b>?',
+    correct: ans + ' m/s', wrong: wrongNums(ans, [v.dv(t), t, ans + v.k, ans / 2], ' m/s'),
+    hint: 'Use the speed rule, not the distance rule: ' + v.speed + ' with time = ' + t + '.',
+    explain: 'Speed = ' + v.speed + ' = ' + v.k + ' × ' + t + ' = <b>' + ans + ' m/s</b>. (Careful: ' + v.dist + ' = ' + v.dv(t) + ' m tells you how <b>far</b> it went, not how <b>fast</b>.)' +
+      E('Power rule: ' + m(v.eng) + '.')
   });
 }
 
-// ---- World 4: Derivative Dojo
+function genConstSpeedStory() {
+  const v = pick([
+    { p: '🚆 A train\'s distance from the station is always <b>80 × hours</b> km. How fast is it going at any moment?', a: '80 km/h', w: ['160 km/h', '0 km/h', '1 km/h', '8 km/h'], ex: 'Every hour it adds exactly 80 km, so the speed never changes: <b>80 km/h</b>. A straight-line graph means constant speed.', eng: "d/dt (80t) = 80" },
+    { p: '🚗 A parked car stays <b>50 m</b> from the gate the whole time. What is its speed?', a: '0 m/s', w: ['50 m/s', '1 m/s', '5 m/s'], ex: 'Its distance never changes, so its speed is <b>0</b>. A flat graph has zero steepness.', eng: "d/dt (50) = 0" },
+    { p: '🛗 A lift goes up so that its height is <b>3 × seconds</b> metres. How fast is it rising?', a: '3 m/s', w: ['6 m/s', '0 m/s', '30 m/s', '9 m/s'], ex: 'Each second it rises 3 m more, so its speed is <b>3 m/s</b>, the number multiplying time.', eng: "d/dt (3t) = 3" } ]);
+  return mc({ prompt: v.p, correct: v.a, wrong: v.w, hint: 'How much does the distance change each time unit?', explain: v.ex + E(m(v.eng)) });
+}
+
+function genGapPattern() {
+  const k = rnd(1, 5), ts = [0, 1, 2, 3, 4, 5, 6];
+  const ans = 2 * k + 1;
+  return mc({
+    prompt: '⚽ A ball rolls down a ramp. The table shows how far it has rolled. How many metres does it roll <b>between second ' + k + ' and second ' + (k + 1) + '</b>?',
+    table: { head: ['Time (s)', ...ts], rows: [['Distance (m)', ...ts.map(t => t * t)]] },
+    correct: ans + ' m', wrong: wrongNums(ans, [(k + 1) * (k + 1), k * k, 2 * k, 2 * k + 2], ' m'),
+    hint: 'Subtract: distance at ' + (k + 1) + ' s minus distance at ' + k + ' s.',
+    explain: (k + 1) * (k + 1) + ' − ' + k * k + ' = <b>' + ans + ' m</b>. Look at all the gaps: 1, 3, 5, 7, 9… Each second it rolls 2 m more than the second before, so it keeps <b>speeding up</b>.'
+  });
+}
+
+function genReverseSpeed() {
+  const t = rnd(2, 9), S = 2 * t;
+  return mc({
+    prompt: '⚽ For a ball rolling down a ramp, the pattern says <b>speed = 2 × time</b>. At what time is the ball going <b>' + S + ' m/s</b>?',
+    correct: t + ' s', wrong: wrongNums(t, [2 * S, S, t * t], ' s'),
+    hint: '2 × ? = ' + S,
+    explain: '2 × ' + t + ' = ' + S + ', so it is at <b>' + t + ' seconds</b>.' + E('Solve ' + m("s′(t) = 2t = " + S) + '.')
+  });
+}
+
+// Engineer-only
 function genPowerRule() {
   const a = pick([1, 2, 3, 4, 5, -1, -2, -3]), n = rnd(2, 6);
   return mc({
     prompt: 'Find the derivative: ' + m('f(x) = ' + poly([[a, n]])) + '. &nbsp;' + m('f′(x) = ?'),
     correct: m(poly([[a * n, n - 1]])),
     wrong: [poly([[a, n - 1]]), poly([[a * n, n]]), poly([[a * n, n + 1]]), poly([[a * (n - 1), n - 1]]), poly([[n, n - 1]])].map(m),
-    hint: 'Power rule: bring the exponent down in front and multiply, then subtract 1 from the exponent. ' + m('(xⁿ)′ = n·xⁿ⁻¹'),
-    explain: 'Bring down the ' + n + ': ' + m(N(a) + ' · ' + n + ' = ' + N(a * n)) + '. New power: ' + m(n + ' − 1 = ' + (n - 1)) + '. So ' + m('f′(x) = ' + poly([[a * n, n - 1]])) + '.'
+    hint: 'Power rule: ' + m('(xⁿ)′ = n·xⁿ⁻¹') + '.',
+    explain: 'Bring down the ' + n + ': ' + m(N(a) + ' · ' + n + ' = ' + N(a * n)) + '; new power ' + (n - 1) + '. So ' + m('f′(x) = ' + poly([[a * n, n - 1]])) + '.'
   });
 }
-
-function genConstLinear() {
-  if (Math.random() < 0.5) {
-    const c = pick([3, 5, 7, 12, -4, -9, 100]);
-    return mc({
-      prompt: 'Find the derivative of the constant function ' + m('f(x) = ' + N(c)) + '.',
-      graph: { xmin: -5, xmax: 5, ymin: Math.min(c, 0) - 3, ymax: Math.max(c, 0) + 3, items: [{ t: 'fn', f: () => c, color: 'c1' }] },
-      correct: m('0'), wrong: [m(N(c)), m('1'), m('x'), m(N(c) + 'x')],
-      hint: 'A constant never changes. What is the slope of a flat line?',
-      explain: 'The graph of ' + m('y = ' + N(c)) + ' is a flat line — its slope is 0 everywhere. Constants always have derivative <b>0</b>.'
-    });
-  }
-  const a = pick([2, 3, 4, 5, 7, -2, -3, -6]), b = pick([1, 2, 4, 5, 8, -1, -3, -7]);
-  return mc({
-    prompt: 'Find ' + m('f′(x)') + ' for ' + m('f(x) = ' + poly([[a, 1], [b, 0]])) + '.',
-    correct: m(N(a)), wrong: [m(poly([[a, 1]])), m(N(a + b)), m(N(b)), m('1')],
-    hint: 'The derivative of a line is its slope. Also: the derivative of x is 1, and of a constant is 0.',
-    explain: m('(' + N(a) + 'x)′ = ' + N(a)) + ' and ' + m('(' + N(b) + ')′ = 0') + ', so ' + m('f′(x) = ' + N(a)) + ' — exactly the slope of the line.'
-  });
-}
-
 function genPolyDeriv() {
   const a = pick([1, 2, 3, 4, 5, -1, -2, -3]);
   const b = pick([1, 2, 3, 5, 6, -1, -2, -4, -5]), c = pick([1, 3, 4, 7, -2, -5, -8]);
   return mc({
-    prompt: 'Differentiate term by term: ' + m('f(x) = ' + poly([[a, 2], [b, 1], [c, 0]])),
+    prompt: 'Differentiate: ' + m('f(x) = ' + poly([[a, 2], [b, 1], [c, 0]])),
     correct: m(poly([[2 * a, 1], [b, 0]])),
-    wrong: [poly([[a, 1], [b, 0]]), poly([[2 * a, 1], [b, 0], [c, 0]]), poly([[2 * a, 2], [b, 1]]), poly([[2 * a, 1]]), poly([[2 * a, 1], [b + c, 0]])].map(m),
-    hint: 'Do each piece separately: ' + m('(ax²)′ = 2ax') + ', ' + m('(bx)′ = b') + ', ' + m('(c)′ = 0') + '.',
-    explain: m('(' + poly([[a, 2]]) + ')′ = ' + poly([[2 * a, 1]])) + ', &nbsp;' + m('(' + poly([[b, 1]]) + ')′ = ' + N(b)) + ', &nbsp;' + m('(' + N(c) + ')′ = 0') + '. Together: ' + m(poly([[2 * a, 1], [b, 0]])) + '.'
+    wrong: [poly([[a, 1], [b, 0]]), poly([[2 * a, 1], [b, 0], [c, 0]]), poly([[2 * a, 2], [b, 1]]), poly([[2 * a, 1]])].map(m),
+    hint: 'Term by term: ' + m('(ax²)′ = 2ax, (bx)′ = b, (c)′ = 0') + '.',
+    explain: m('f′(x) = ' + poly([[2 * a, 1], [b, 0]])) + ' (the constant ' + N(c) + ' disappears).'
   });
 }
-
 function genDerivAt() {
   const a = rnd(1, 4), n = pick([2, 3]), x0 = pick([-3, -2, -1, 1, 2, 3]);
   const ans = a * n * Math.pow(x0, n - 1), val = a * Math.pow(x0, n);
   return mc({
-    prompt: 'If ' + m('f(x) = ' + poly([[a, n]])) + ', what is ' + m('f′(' + N(x0) + ')') + '? (That\'s the slope of the tangent at ' + m('x = ' + N(x0)) + '.)',
-    correct: m(N(ans)), wrong: numWrong(ans, [val, a * Math.pow(x0, n - 1), a * n * Math.pow(x0, n)]).map(m),
-    hint: 'Step 1: find ' + m('f′(x)') + ' with the power rule. Step 2: plug in ' + m('x = ' + N(x0)) + '.',
-    explain: m('f′(x) = ' + poly([[a * n, n - 1]])) + ', so ' + m('f′(' + N(x0) + ') = ' + N(a * n) + (n === 2 ? '·(' + N(x0) + ')' : '·(' + N(x0) + ')<sup>2</sup>') + ' = ' + N(ans)) + '. (Careful: ' + m('f(' + N(x0) + ') = ' + N(val)) + ' is the height, not the slope!)'
+    prompt: 'If ' + m('f(x) = ' + poly([[a, n]])) + ', what is ' + m('f′(' + N(x0) + ')') + '?',
+    correct: m(N(ans)), wrong: [val, a * Math.pow(x0, n - 1), a * n * Math.pow(x0, n), ans + 1, ans - 1].map(v => m(N(v))),
+    hint: 'Find ' + m('f′(x)') + ' first, then plug in.',
+    explain: m('f′(x) = ' + poly([[a * n, n - 1]])) + ', so ' + m('f′(' + N(x0) + ') = ' + N(ans)) + '. (' + m('f(' + N(x0) + ') = ' + N(val)) + ' is the height, not the slope.)'
   });
 }
 
-// ---- World 5: Area Archipelago
-function genAreaRect() {
-  const c = rnd(1, 5), a = rnd(0, 2), b = a + rnd(2, 5);
+/* =====================================================================
+   WORLD 5 — Adding It Up (integrals)
+   ===================================================================== */
+const TOTALS = [
+  { e: '🚗', r: () => pick([40, 50, 60, 70, 80]), t: () => rnd(2, 5), ru: ' km/h', tu: ' hours', au: ' km', x: 'hours', y: 'speed (km/h)',
+    q: (r, t) => 'A car drives at a steady <b>' + r + ' km/h</b> for <b>' + t + ' hours</b>. The shaded area on this speed graph is the distance. How far did it go?' },
+  { e: '🚰', r: () => rnd(2, 8), t: () => rnd(3, 8), ru: ' litres/min', tu: ' minutes', au: ' litres', x: 'minutes', y: 'litres per minute',
+    q: (r, t) => 'A tap pours <b>' + r + ' litres every minute</b> into a tank for <b>' + t + ' minutes</b>. How much water is in the tank? (It is the shaded area!)' },
+  { e: '💰', r: () => pick([50, 100, 150, 200]), t: () => rnd(2, 6), ru: ' ₹/hour', tu: ' hours', au: '', pre: '₹', x: 'hours', y: '₹ per hour',
+    q: (r, t) => 'Meena earns <b>₹' + r + ' per hour</b> helping at a shop for <b>' + t + ' hours</b>. How much does she earn in total? (It is the shaded area!)' }
+];
+const money = (s, v) => (s.pre || '') + N(v) + s.au;
+function genRectStory() {
+  const s = pick(TOTALS), r = s.r(), t = s.t(), ans = r * t;
   return mc({
-    prompt: 'Find the shaded area: ' + m(integ(a, b) + N(c) + '&thinsp;dx') + ' (the area under ' + m('f(x) = ' + c) + ' from ' + m('x = ' + a) + ' to ' + m('x = ' + b) + ').',
-    graph: { xmin: -0.5, xmax: b + 1, ymin: -1, ymax: c + 2, items: [{ t: 'shade', f: () => c, a, b }, { t: 'fn', f: () => c, color: 'c1' }] },
-    correct: m(N(c * (b - a))), wrong: numWrong(c * (b - a), [c * b, c + b - a, b - a, c * (b - a) + c]).map(m),
-    hint: 'The shaded region is a rectangle. Area = width × height.',
-    explain: 'Width = ' + b + ' − ' + a + ' = ' + (b - a) + ', height = ' + c + '. Area = ' + (b - a) + ' × ' + c + ' = <b>' + c * (b - a) + '</b>.'
+    prompt: s.e + ' ' + s.q(r, t),
+    graph: { xmin: -0.4, xmax: t + 1, ymin: -r * 0.08, ymax: r * 1.35, xLabel: s.x, yLabel: s.y, items: [
+      { t: 'shade', f: () => r, a: 0, b: t }, { t: 'seg', x1: 0, y1: r, x2: t, y2: r, color: 'c1' }, { t: 'emoji', x: t / 2, y: r / 2, text: s.e } ] },
+    correct: money(s, ans), wrong: [r + t, r, ans + r, ans - r, ans * 2].map(v => money(s, v)),
+    hint: 'The shaded shape is a rectangle: width × height = ' + t + ' × ' + r + '.',
+    explain: 'Rectangle area = ' + t + ' × ' + r + ' = <b>' + money(s, ans) + '</b>. The <b>area under a rate graph = the total amount</b>. That is the big idea of integration!' +
+      E(m(integ(0, t) + r + '&thinsp;dt = ' + ans) + '.')
   });
 }
 
-function genAreaTriangle() {
-  const k = pick([1, 2, 3]), b = k % 2 ? pick([2, 4]) : pick([2, 3, 4]);
-  const ans = k * b * b / 2;
+function genTwoStage() {
+  const r1 = rnd(2, 5), t1 = rnd(2, 4), r2 = r1 + rnd(1, 3), t2 = rnd(1, 3), ans = r1 * t1 + r2 * t2;
+  const f = x => x < t1 ? r1 : r2;
   return mc({
-    prompt: 'Find the shaded area ' + m(integ(0, b) + poly([[k, 1]]) + '&thinsp;dx') + ' under ' + m('f(x) = ' + poly([[k, 1]])) + ' from ' + m('x = 0') + ' to ' + m('x = ' + b) + '.',
-    graph: { xmin: -0.5, xmax: b + 1, ymin: -1, ymax: k * b + 2, items: [{ t: 'shade', f: x => k * x, a: 0, b }, { t: 'fn', f: x => k * x, color: 'c1' }, { t: 'pt', x: b, y: k * b, color: 'c2', label: '(' + b + ', ' + k * b + ')' }] },
-    correct: m(N(ans)), wrong: numWrong(ans, [k * b * b, k * b, b * b / 2 + 1, ans + b]).map(m),
-    hint: 'The region is a triangle. Area = ½ × base × height.',
-    explain: 'Base = ' + b + ', height = f(' + b + ') = ' + k * b + '. Area = ½ × ' + b + ' × ' + k * b + ' = <b>' + ans + '</b>.'
+    prompt: '🚰 A tap pours <b>' + r1 + ' litres/min</b> for ' + t1 + ' minutes, then is turned up to <b>' + r2 + ' litres/min</b> for ' + t2 + ' more minutes. How much water is in the bucket?',
+    graph: { xmin: -0.4, xmax: t1 + t2 + 1, ymin: -0.5, ymax: r2 + 2.5, xLabel: 'minutes', yLabel: 'litres per minute', items: [
+      { t: 'shade', f, a: 0, b: t1 + t2 }, { t: 'fn', f: x => x >= 0 && x <= t1 + t2 ? f(x) : NaN, color: 'c1' } ] },
+    correct: ans + ' litres', wrong: wrongNums(ans, [(r1 + r2) * (t1 + t2), r1 * t1, r2 * (t1 + t2), r1 + r2 + t1 + t2], ' litres'),
+    hint: 'Two rectangles! Find each area and add them.',
+    explain: 'First part: ' + r1 + ' × ' + t1 + ' = ' + r1 * t1 + ' L. Second part: ' + r2 + ' × ' + t2 + ' = ' + r2 * t2 + ' L. Total = <b>' + ans + ' litres</b>.'
   });
 }
 
-function genRiemann() {
-  const n = pick([3, 4]), side = pick(['left', 'right']);
-  const hs = []; for (let i = 0; i < n; i++) hs.push(side === 'left' ? i * i : (i + 1) * (i + 1));
-  const sum = hs.reduce((s, v) => s + v, 0);
-  const other = side === 'left' ? sum + n * n : sum - n * n;
+function genSpeedUpTriangle() {
+  const t = pick([2, 4, 6]), v = pick([4, 6, 8, 10]), ans = v * t / 2;
   return mc({
-    prompt: 'Estimate the area under ' + m('f(x) = x<sup>2</sup>') + ' from 0 to ' + n + ' using ' + n + ' rectangles of width 1, with heights taken from the <b>' + side + '</b> edge of each rectangle. Add up the rectangle areas.',
-    graph: { xmin: -0.4, xmax: n + 0.6, ymin: -1, ymax: n * n + 2, items: [
-      ...hs.map((h, i) => ({ t: 'rect', x: i, w: 1, h })), { t: 'fn', f: x => x * x, color: 'c1' } ],
+    prompt: '🚲 A bike starts from stopped and speeds up steadily to <b>' + v + ' m/s</b> in <b>' + t + ' seconds</b>. How far does it travel? (Find the shaded area.)',
+    graph: { xmin: -0.4, xmax: t + 1, ymin: -0.6, ymax: v + 2, xLabel: 'seconds', yLabel: 'speed (m/s)', items: [
+      { t: 'shade', f: x => v * x / t, a: 0, b: t }, { t: 'seg', x1: 0, y1: 0, x2: t, y2: v, color: 'c1' }, { t: 'emoji', x: t, y: v, text: '🚲', dy: -18 } ] },
+    correct: ans + ' m', wrong: wrongNums(ans, [v * t, v + t, v / 2, ans + v], ' m'),
+    hint: 'It\'s a triangle: half of base × height.',
+    explain: '½ × ' + t + ' × ' + v + ' = <b>' + ans + ' m</b>. It is half the rectangle because the bike started slow.' + E(m(integ(0, t) + (v / t === 1 ? '' : N(v / t)) + 't&thinsp;dt = ' + ans))
+  });
+}
+
+function genRocketRects() {
+  const n = pick([3, 4]);
+  const hs = []; for (let i = 1; i <= n; i++) hs.push(i * i);
+  const sum = hs.reduce((s, x) => s + x, 0), left = sum - n * n;
+  return mc({
+    prompt: '🚀 A toy rocket speeds up: its speed at 1, 2, 3' + (n === 4 ? ', 4' : '') + ' seconds is ' + hs.join(', ') + ' m/s. Estimate how far it flies in ' + n + ' seconds by adding up the rectangles (each is 1 second wide).',
+    graph: { xmin: -0.4, xmax: n + 0.6, ymin: -1, ymax: n * n + 3, xLabel: 'seconds', yLabel: 'speed (m/s)', items: [
+      ...hs.map((h, i) => ({ t: 'rect', x: i, w: 1, h })), { t: 'fn', f: x => x >= 0 ? x * x : NaN, color: 'c1' } ],
       reveal: [{ t: 'shade', f: x => x * x, a: 0, b: n, color: 'c3' }] },
-    correct: m(N(sum)), wrong: [N(other), frac(n * n * n, 3), N(n * n), N(sum + 1), N(sum - 1)].map(m),
-    hint: 'Each rectangle has width 1, so its area equals its height. Heights: ' + (side === 'left' ? 'f(0), f(1), …' : 'f(1), f(2), …'),
-    explain: 'Heights: ' + hs.join(' + ') + ' = <b>' + sum + '</b>. The exact area is ' + m(frac(n * n * n, 3)) + ' (green). Using more, thinner rectangles gets closer and closer to it — and that limit is the <b>integral</b>!'
+    correct: sum + ' m', wrong: [left, n * n, sum + 1, sum - 2, 2 * sum].map(v => v + ' m'),
+    hint: 'Each rectangle is 1 wide, so its area = its height. Add the heights.',
+    explain: hs.join(' + ') + ' = <b>' + sum + ' m</b>. The real answer is about ' + N(n * n * n / 3) + ' m (green area). Thinner rectangles give a closer answer. Adding up infinitely many thin slices is exactly what an <b>integral</b> does!' +
+      E(m(integ(0, n) + 't²&thinsp;dt = ' + n + '³/3 = ' + N(n * n * n / 3)) + '.')
   });
 }
 
+// Engineer-only
 function genAntideriv() {
   const n = rnd(0, 3), k = pick([1, 2, 3, -1, -2]), a = k * (n + 1);
   const integrand = n === 0 ? N(a) : poly([[a, n]]);
@@ -587,87 +838,259 @@ function genAntideriv() {
     prompt: 'Find the antiderivative: ' + m(integ() + integrand + '&thinsp;dx') + ' = ?',
     correct: m(poly([[k, n + 1]]) + ' + C'),
     wrong: [poly([[a, n + 1]]) + ' + C', poly([[a * n, n - 1]]) + ' + C', poly([[k, n]]) + ' + C', poly([[2 * k, n + 1]]) + ' + C'].map(m),
-    hint: 'Reverse power rule: add 1 to the exponent, then divide by the new exponent. ' + m('∫xⁿ dx = xⁿ⁺¹/(n+1) + C'),
-    explain: 'New power: ' + (n + 1) + '. Divide: ' + m(N(a) + ' ÷ ' + (n + 1) + ' = ' + N(k)) + '. So the answer is ' + m(poly([[k, n + 1]]) + ' + C') + '. Check: its derivative is ' + m(integrand) + ' ✓. (+C because any constant disappears when you differentiate.)'
+    hint: 'Reverse power rule: ' + m('∫xⁿ dx = xⁿ⁺¹/(n+1) + C') + '.',
+    explain: 'Raise the power to ' + (n + 1) + ' and divide: ' + m(N(a) + ' ÷ ' + (n + 1) + ' = ' + N(k)) + '. Answer ' + m(poly([[k, n + 1]]) + ' + C') + '. Check: its derivative is ' + m(integrand) + ' ✓.'
   });
 }
-
 function genFTC() {
   const a = rnd(0, 2), b = a + rnd(1, 3), ans = b * b - a * a;
   return mc({
-    prompt: 'Use the Fundamental Theorem: ' + m(integ(a, b) + '2x&thinsp;dx') + ' = ? &nbsp;(An antiderivative of ' + m('2x') + ' is ' + m('F(x) = x<sup>2</sup>') + '.)',
+    prompt: 'Evaluate ' + m(integ(a, b) + '2x&thinsp;dx') + ' using ' + m('F(x) = x<sup>2</sup>') + '.',
     graph: { xmin: -0.5, xmax: b + 1, ymin: -1, ymax: 2 * b + 2, items: [{ t: 'shade', f: x => 2 * x, a, b }, { t: 'fn', f: x => 2 * x, color: 'c1' }] },
-    correct: m(N(ans)), wrong: numWrong(ans, [b * b + a * a, 2 * b - 2 * a, b * b, (b - a) * (b - a)]).map(m),
-    hint: 'Compute ' + m('F(b) − F(a)') + ' = ' + m(b + '<sup>2</sup> − ' + a + '<sup>2</sup>') + '.',
-    explain: m('F(' + b + ') − F(' + a + ') = ' + b * b + ' − ' + a * a + ' = ' + ans) + '. No rectangles needed — antiderivatives give the exact area!'
+    correct: m(N(ans)), wrong: [b * b + a * a, 2 * b - 2 * a, b * b, (b - a) * (b - a), ans + 1, ans + 2].map(v => m(N(v))),
+    hint: m('F(b) − F(a) = ' + b + '² − ' + a + '²'),
+    explain: m(b * b + ' − ' + a * a + ' = ' + ans) + '. The Fundamental Theorem gives exact areas without rectangles.'
   });
 }
 
 /* ============ worlds ============ */
 const WORLDS = [
-  { id: 'slope', icon: '⛰️', name: 'Slope Valley', tag: 'How steep is it? The idea of rate of change.',
-    formula: 'slope = rise ÷ run = (y₂ − y₁) ÷ (x₂ − x₁)',
-    gens: [genSlopeTwoPoints, genSlopeSign, genSlopeFromEq, genSpeed],
-    lesson: `<p><b>Calculus is the math of change.</b> To talk about change, we first need <b>slope</b>: how much y changes when x changes.</p>
-      <div class="key"><b>Key idea</b>${m('slope = rise ÷ run = (y₂ − y₁) ÷ (x₂ − x₁)')}</div>
-      <p>Uphill ↗ = positive slope. Downhill ↘ = negative slope. Flat → = zero slope.</p>
-      <div class="example"><b>Example:</b> from ${m('(1, 2)')} to ${m('(3, 8)')}: rise = 8 − 2 = 6, run = 3 − 1 = 2, so slope = 6 ÷ 2 = <b>3</b>.</div>
-      <p>In real life, slope is a <b>rate</b>: meters per second, dollars per hour. In ${m('y = mx + b')}, the slope is ${m('m')}.</p>` },
-  { id: 'limits', icon: '🌊', name: 'Limit Lake', tag: 'What value is the function heading toward?',
-    formula: 'lim x→a f(x) = L means f(x) gets as close to L as we like when x is close to a',
-    gens: [genLimitSub, genLimitTable, genLimitHole, genLimitInf],
-    lesson: `<p>A <b>limit</b> asks: as x gets closer and closer to some number a, what value does f(x) <i>approach</i>?</p>
-      <div class="key"><b>Key idea</b>${m(lim('a') + 'f(x) = L')} &nbsp;— the limit only cares about values <i>near</i> a, not <i>at</i> a.</div>
-      <p><b>Three tricks:</b></p>
-      <p>1. If the graph has no breaks, just <b>plug in</b>: ${m(lim('2') + '(3x + 1) = 7')}.</p>
-      <p>2. If plugging in gives ${m('0 ÷ 0')}, use a <b>table</b> or <b>factor</b> and cancel.</p>
-      <p>3. As ${m('x → ∞')}, ${m('k ÷ x → 0')} (a fixed amount split into infinitely many pieces).</p>
-      <div class="example"><b>Example:</b> a graph with a hole at height 4 when x = 1 still has ${m(lim('1') + 'f(x) = 4')}, whatever f(1) is.</div>` },
-  { id: 'tangent', icon: '🗼', name: 'Tangent Tower', tag: 'The derivative = slope of the tangent line.',
-    formula: "f′(a) = slope of the tangent line at x = a = instantaneous rate of change",
-    gens: [genTangentSlider, genSecantTable, genFlatTangent, genDerivSign],
-    lesson: `<p>A curve doesn't have one slope — it's steeper in some places than others. So we ask for the slope <b>at a single point</b>.</p>
-      <p>Draw a <b>secant line</b> through two points on the curve. Now slide the second point closer and closer… The secant turns into the <b>tangent line</b>, which just touches the curve at one point.</p>
-      <div class="key"><b>Key idea</b>The slope of the tangent line at ${m('x = a')} is the <b>derivative</b> ${m("f′(a)")}. It's the <i>instantaneous</i> rate of change — like a speedometer reading.</div>
-      <p>${m("f′ > 0")}: curve rising. ${m("f′ < 0")}: curve falling. ${m("f′ = 0")}: flat — the top of a hill or bottom of a valley.</p>
-      <div class="example"><b>Example:</b> for ${m('f(x) = x<sup>2</sup>')}, the tangent at x = 3 has slope 6. In general ${m('f′(x) = 2x')}.</div>` },
-  { id: 'deriv', icon: '🥋', name: 'Derivative Dojo', tag: 'Shortcut rules: the power rule and friends.',
+  { id: 'slope', icon: '⛰️', name: 'Steepness Hills', tag: 'How steep is it? How fast is it changing?',
+    idea: 'Steepness = how much something goes up for every 1 step across. Speeds, flow rates and savings per week are all steepness (rates).',
+    formula: 'slope m = rise ÷ run = (y₂ − y₁) ÷ (x₂ − x₁)',
+    gens: [genRampCompare, genRateStory, genTripStory, genSpeed, genHillSign], engGens: [genSlopeTwoPoints, genSlopeFromEq],
+    steps: [
+      { title: 'Which slide is steeper? 🛝', widget: 'ramp',
+        html: '<p>At the park, one slide is gentle and one is super steep. How can we give steepness a <b>number</b>?</p><p>Count how much the ramp goes <b>UP</b> for every <b>1 step ACROSS</b>. Move the sliders and watch the number change.</p>' },
+      { title: 'Speed is steepness too 🚗', widget: 'car',
+        html: '<p>A car going <b>60 km per hour</b> adds 60 km to its trip every hour. If we draw <b>distance</b> against <b>time</b>, a faster car makes a <b>steeper</b> line.</p><p>Pick a speed for the car and press ▶. The bike always rides at 15 km/h.</p>' },
+      { title: 'Graphs tell stories 📈', widget: 'trip',
+        html: '<p>Here is a whole trip on one graph. You can read it like a story:</p><p>↗ <b>Going up</b>: moving away from home. &nbsp; → <b>Flat</b>: stopped, nothing is changing. &nbsp; <b>Steeper</b>: faster.</p><p>Steepness that tells you "how much changes each hour/minute/week" is called a <b>rate</b>. Calculus is all about rates!</p>' }
+    ],
+    math: '<p><b>Slope</b> of a line through two points: ' + m('m = (y₂ − y₁) ÷ (x₂ − x₁)') + ' ("rise over run").</p><p>A line ' + m('y = mx + b') + ' has slope ' + m('m') + ' and crosses the y-axis at ' + m('b') + '.</p><p>Average rate of change of ' + m('f') + ' from ' + m('a') + ' to ' + m('b') + ': ' + m('[f(b) − f(a)] ÷ (b − a)') + '.</p>' },
+  { id: 'limits', icon: '🔍', name: 'Getting Closer', tag: 'Where is it heading? The idea of a limit.',
+    idea: 'A limit is where something is heading as it gets closer and closer, even if it never quite arrives.',
+    formula: 'lim x→a f(x) = L: f(x) gets as close to L as we like when x is close to a',
+    gens: [genHalfway, genCooling, genSequence, genHoleStory], engGens: [genLimitSub, genLimitTable, genLimitInf],
+    steps: [
+      { title: 'Can you reach the wall? 🧱', widget: 'halfway',
+        html: '<p>You stand 16 m from a wall. Each step, you walk exactly <b>half</b> of the distance that is left. Will you ever touch it? Press the button and find out.</p>' },
+      { title: 'Cooling soup 🍲', widget: 'cooling',
+        html: '<p>Hot soup (90°C) sits in a 25°C room. It cools quickly at first, then slower and slower. It gets closer and closer to <b>25°C</b>, but never colder than the room.</p><p>We say: the soup\'s temperature has a <b>limit</b> of 25°C.</p>' },
+      { title: 'Numbers that sneak up on a target 🔢', html: '<p>Look at these patterns:</p>' +
+        table(['Pattern', '', '', '', '', 'Heading to…'], [['Getting closer to 1', '0.9', '0.99', '0.999', '0.9999', '<b>1</b>'], ['Pizza shared by 10, 100, 1000, … friends', '0.1', '0.01', '0.001', '0.0001', '<b>0</b>']]) +
+        '<div class="key"><b>Big idea</b>A <b>limit</b> is the value something is <i>heading toward</i>. It does not matter if it never actually gets there. This "getting closer and closer" idea is how calculus measures speed and area next!</div>' }
+    ],
+    math: '<p>' + m(lim('a') + 'f(x) = L') + ' means f(x) can be made as close to L as we like by taking x close enough to a (but not equal to a).</p><p>Tricks: if f is continuous, <b>substitute</b>. If you get ' + m('0/0') + ', <b>factor and cancel</b> or use a table. As ' + m('x → ∞') + ', ' + m('k/x → 0') + '.</p>' },
+  { id: 'speed', icon: '🏎️', name: 'Speed Right Now', tag: 'How fast at this exact moment? The derivative.',
+    idea: 'Speed right now = how steep the graph is at one point. Zoom in until the curve looks straight and measure its steepness. This is called the DERIVATIVE.',
+    formula: 'f′(a) = lim h→0 [f(a+h) − f(a)] ÷ h = slope of the tangent line',
+    gens: [genFastestMoment, genBallTop, genZoomSpeed, genTangentSlider, genCoaster], engGens: [genFlatTangent],
+    steps: [
+      { title: 'What does a speedometer show? 🏎️', widget: 'shrink',
+        html: '<p>A speedometer shows how fast you are going <b>right now</b>, not the average for the trip. But speed = distance ÷ time, and in one single instant no time passes! 🤔</p><p>The trick: measure the average speed over <b>shorter and shorter</b> times, and see where it is heading (a limit!). Shrink the time gap:</p>' },
+      { title: 'Zoom in on a curve 🔍', widget: 'zoom',
+        html: '<p>Here is the height of a ball ⚽ you kicked straight up. The curve bends… but if you <b>zoom in</b> a lot on any point, it looks almost like a <b>straight line</b>.</p><p>The steepness of that tiny straight piece is the ball\'s <b>speed at that moment</b>. Try different moments and zoom levels.</p>' },
+      { title: 'Up, top, down ⬆️⏸️⬇️', widget: 'balltop',
+        html: '<p>Going up, the curve is steep upward (positive speed). At the very <b>top</b>, the ball stops for an instant: the curve is <b>flat</b>, speed 0. Coming down, the steepness is negative.</p><div class="key"><b>Big idea</b>"Speed right now" = the steepness of the graph at one point. Mathematicians call this the <b>derivative</b>. The line that just touches the curve there is the <b>tangent line</b>.</div>' }
+    ],
+    math: '<p>The <b>derivative</b> of f at a: ' + m("f′(a) = " + lim('0', 'h') + "[f(a+h) − f(a)] ÷ h") + ', the limit of secant slopes. It is the slope of the tangent line and the instantaneous rate of change.</p><p>' + m("f′ > 0") + ': increasing. ' + m("f′ < 0") + ': decreasing. ' + m("f′ = 0") + ': flat (possible max/min).</p>' },
+  { id: 'deriv', icon: '🥋', name: 'Pattern Dojo', tag: 'Shortcuts: find speed without zooming!',
+    idea: 'Patterns let you find speed instantly. If distance = time × time, then speed = 2 × time. Constant speed: distance = 60 × time means speed is 60. Not moving means speed 0.',
     formula: '(xⁿ)′ = n·xⁿ⁻¹ · (c)′ = 0 · (f + g)′ = f′ + g′',
-    gens: [genPowerRule, genConstLinear, genPolyDeriv, genDerivAt],
-    lesson: `<p>Finding tangent slopes with limits every time is slow. Mathematicians found <b>shortcut rules</b>:</p>
-      <div class="key"><b>Power rule</b>${m('(xⁿ)′ = n · xⁿ⁻¹')} — bring the power down, then lower the power by 1.</div>
-      <p><b>Constant rule:</b> ${m('(5)′ = 0')} &nbsp; (flat line, zero slope)</p>
-      <p><b>Constant multiple:</b> ${m('(3x<sup>4</sup>)′ = 3 · 4x<sup>3</sup> = 12x<sup>3</sup>')}</p>
-      <p><b>Sum rule:</b> differentiate each term separately.</p>
-      <div class="example"><b>Example:</b> ${m('f(x) = 3x<sup>2</sup> + 5x − 7')} → ${m('f′(x) = 6x + 5')}. Then ${m('f′(2) = 17')} is the tangent slope at x = 2.</div>` },
-  { id: 'area', icon: '🏝️', name: 'Area Archipelago', tag: 'Integrals: adding up area under a curve.',
+    gens: [genRuleApply, genConstSpeedStory, genGapPattern, genReverseSpeed], engGens: [genPowerRule, genPolyDeriv, genDerivAt],
+    steps: [
+      { title: 'Spot the pattern 🧩', html: '<p>A ball rolls down a ramp. Its distance is <b>time × time</b>. If we zoom in at every second and measure the speed (like last world), we get:</p>' +
+        table(['Time (s)', 0, 1, 2, 3, 4, 5], [['Distance (m)', 0, 1, 4, 9, 16, 25], ['Speed (m/s)', 0, 2, 4, 6, 8, 10]]) +
+        '<p>See it? The speed is always <b>2 × time</b>! No zooming needed any more. That is a <b>shortcut rule</b>.</p>' },
+      { title: 'More shortcuts 🥋', widget: 'patterns',
+        html: '<p>🚆 <b>Steady speed</b>: distance = 60 × time → speed is always <b>60</b> (a straight line).</p><p>🚗 <b>Parked</b>: distance stays 50 → speed is <b>0</b> (a flat line).</p><p>🪨 <b>Falling stone</b>: distance = 5 × time × time → speed = <b>10 × time</b>.</p><p>The graph shows the ball: distance (blue) and its speed (orange). The speed line climbs steadily: 2 more every second.</p>' }
+    ],
+    math: '<p><b>Power rule:</b> ' + m('(xⁿ)′ = n·xⁿ⁻¹') + '. &nbsp;<b>Constant:</b> ' + m('(c)′ = 0') + '. &nbsp;<b>Constant multiple:</b> ' + m('(c·f)′ = c·f′') + '. &nbsp;<b>Sum:</b> ' + m('(f + g)′ = f′ + g′') + '.</p><p>Example: ' + m('f(x) = 3x<sup>2</sup> + 5x − 7 ⇒ f′(x) = 6x + 5') + '.</p>' },
+  { id: 'area', icon: '🧮', name: 'Adding It Up', tag: 'Total amount = area under the graph. The integral.',
+    idea: 'To find a total (distance, water, money) from a rate, find the AREA under the rate graph. Chop it into thin slices and add them up. This is called the INTEGRAL.',
     formula: '∫xⁿ dx = xⁿ⁺¹/(n+1) + C · ∫ₐᵇ f(x) dx = F(b) − F(a)',
-    gens: [genAreaRect, genAreaTriangle, genRiemann, genAntideriv, genFTC],
-    lesson: `<p>The second big idea of calculus: the <b>integral</b> measures the <b>area under a curve</b>.</p>
-      <p>Estimate it with rectangles (a <b>Riemann sum</b>). More, thinner rectangles → better estimate. The limit of that process is the exact area, written ${m(integ('a', 'b') + 'f(x)&thinsp;dx')}.</p>
-      <div class="key"><b>Antiderivative (reverse power rule)</b>${m('∫xⁿ dx = xⁿ⁺¹ ÷ (n+1) + C')}</div>
-      <div class="key"><b>Fundamental Theorem of Calculus</b>If ${m("F′ = f")}, then ${m(integ('a', 'b') + 'f(x)&thinsp;dx = F(b) − F(a)')}. Derivatives and integrals undo each other!</div>
-      <div class="example"><b>Example:</b> ${m(integ('0', '3') + '2x&thinsp;dx = 3<sup>2</sup> − 0<sup>2</sup> = 9')} — the area of a triangle with base 3, height 6.</div>` },
-  { id: 'boss', icon: '🐉', name: 'Final Boss: The Calculus Dragon', tag: 'A mixed review of every world. 10 questions!',
-    formula: 'You mastered the basics of calculus: limits, derivatives and integrals! 🎓',
+    gens: [genRectStory, genTwoStage, genSpeedUpTriangle, genRocketRects], engGens: [genAntideriv, genFTC],
+    steps: [
+      { title: 'Distance is an area 🚗', widget: 'rectarea',
+        html: '<p>Drive at <b>60 km/h</b> for <b>2 hours</b> and you go 120 km. Now draw <b>speed</b> against <b>time</b>: it is a rectangle 2 wide and 60 tall. Its <b>area</b> is 2 × 60 = 120. That is the distance!</p><p>Change the sliders and check.</p>' },
+      { title: 'When speed keeps changing 🚀', widget: 'riemann',
+        html: '<p>A rocket keeps speeding up, so the graph is curved, not a rectangle. Trick: chop the time into thin slices, pretend the speed is steady in each slice, and <b>add up the rectangles</b>. More slices give a better answer.</p>' },
+      { title: 'Adding up tiny pieces 🧮', html: '<p>This "add up lots of thin slices" idea is called <b>integration</b>. It is everywhere:</p><p>🚰 Flow rate → total water in the tank. &nbsp;🌧️ Rain per hour → total rainfall. &nbsp;💰 Pay per hour → total earned. &nbsp;🚗 Speed → total distance.</p>' +
+        '<div class="key"><b>Big idea</b><b>Derivative</b>: from total → rate (how fast is it changing?).<br><b>Integral</b>: from rate → total (how much altogether?).<br>They are opposites, and together they are calculus! 🎉</div>' }
+    ],
+    math: '<p>' + m(integ('a', 'b') + 'f(x)&thinsp;dx') + ' is the limit of Riemann sums ' + m('Σ f(xᵢ)Δx') + ' as ' + m('Δx → 0') + ', the signed area under f.</p><p><b>Antiderivative:</b> ' + m('∫xⁿ dx = xⁿ⁺¹/(n+1) + C') + '. &nbsp;<b>Fundamental Theorem:</b> if ' + m("F′ = f") + ', then ' + m(integ('a', 'b') + 'f(x)&thinsp;dx = F(b) − F(a)') + '.</p>' },
+  { id: 'boss', icon: '🐉', name: 'Final Boss: Calculus Dragon', tag: 'A mixed review of every world. 10 questions!',
+    idea: 'You learned the big ideas of calculus: rates, limits, derivatives (speed right now) and integrals (adding it up)! 🎓',
+    formula: 'Rates, limits, derivatives, integrals: the core of calculus.',
     gens: null, count: 10,
-    lesson: `<p>The Calculus Dragon guards the summit. It will test you on <b>everything</b>: slopes, limits, tangents, derivative rules and areas.</p>
-      <div class="key"><b>Quick review</b>
-        slope = rise ÷ run<br>limit = the value f(x) <i>approaches</i><br>derivative = slope of the tangent, ${m('(xⁿ)′ = nxⁿ⁻¹')}<br>integral = area, ${m('∫xⁿ dx = xⁿ⁺¹/(n+1) + C')}</div>
-      <p>10 questions, 3 hearts. Use hints if you need them. Good luck! 🗡️</p>` }
+    steps: [{ title: 'The Calculus Dragon 🐉', html: '<p>The dragon guards the summit and will test you on <b>everything</b>:</p><p>⛰️ Steepness and rates · 🔍 Getting closer (limits) · 🏎️ Speed right now · 🥋 Shortcut patterns · 🧮 Adding it up</p><p>10 questions, 3 hearts. Use hints if you need them. Good luck! 🗡️</p>' }],
+    math: '<p>Slope ' + m('Δy/Δx') + ' · limits ' + m(lim('a') + 'f(x)') + ' · derivatives ' + m("f′(x)") + ', ' + m('(xⁿ)′ = nxⁿ⁻¹') + ' · integrals ' + m('∫xⁿ dx = xⁿ⁺¹/(n+1) + C') + '.</p>' }
 ];
+
+/* ============ lesson widgets ============ */
+let lessonDraw = null, anim = 0;
+function stopAnim() { cancelAnimationFrame(anim); anim = 0; }
+const WIDGETS = {
+  ramp(el) {
+    el.innerHTML = '<canvas class="graph"></canvas><div class="ctrls"><label>Up: <b id="wUpV">3</b><input type="range" id="wUp" min="1" max="6" value="3"></label>' +
+      '<label>Across: <b id="wAcV">4</b><input type="range" id="wAc" min="1" max="8" value="4"></label></div><div class="readout" id="wOut"></div>';
+    const cv = el.querySelector('canvas');
+    lessonDraw = () => {
+      const up = +$('#wUp').value, ac = +$('#wAc').value, s = up / ac;
+      $('#wUpV').textContent = up; $('#wAcV').textContent = ac;
+      drawGraph(cv, { xmin: -0.5, xmax: 9, ymin: -0.6, ymax: 7, equal: true, noTicks: true, items: [
+        { t: 'poly', pts: [[0, 0], [ac, 0], [ac, up]], color: 'c1' },
+        { t: 'label', x: ac / 2, y: 0, text: 'across ' + ac, dy: 14, color: 'c3' },
+        { t: 'label', x: ac, y: up / 2, text: 'up ' + up, dx: 8, color: 'c4' },
+        { t: 'emoji', x: ac * 0.55, y: up * 0.55, text: '🛹', dy: -14 } ] }, false, []);
+      $('#wOut').innerHTML = 'Goes up <b>' + up + '</b> for every <b>' + ac + '</b> across → up ' + up + ' ÷ ' + ac + ' = <b>' + N(+s.toFixed(2)) + '</b> for each 1 step across. ' +
+        (s > 1.2 ? '😱 Super steep!' : s > 0.6 ? '😎 Nice and steep.' : '🙂 Gentle ramp.') + E('This number is the slope ' + m('m = rise ÷ run') + '.');
+    };
+    el.querySelectorAll('input').forEach(i => i.oninput = lessonDraw);
+  },
+  car(el) {
+    el.innerHTML = '<div class="road"><span class="veh" id="vCar"><span class="flip">🚗</span></span><span class="veh" id="vBike" style="bottom:30px">🚲</span></div>' +
+      '<canvas class="graph"></canvas><div class="ctrls"><label>Car speed: <b id="wSpV">60</b> km/h<input type="range" id="wSp" min="20" max="100" step="10" value="60"></label>' +
+      '<div class="row"><button class="btn primary" id="wGo">▶ Drive for 3 hours</button></div></div><div class="readout" id="wOut"></div>';
+    const cv = el.querySelector('canvas');
+    let t = 0;
+    lessonDraw = () => {
+      const v = +$('#wSp').value; $('#wSpV').textContent = v;
+      $('#vCar').style.left = 'calc(' + (v * t / 300 * 88) + '% + 4px)';
+      $('#vBike').style.left = 'calc(' + (15 * t / 300 * 88) + '% + 4px)';
+      drawGraph(cv, { xmin: -0.15, xmax: 3.3, ymin: -15, ymax: 345, xLabel: 'hours', yLabel: 'km travelled', items: [
+        { t: 'seg', x1: 0, y1: 0, x2: t, y2: v * t, color: 'c2', width: 3 }, { t: 'seg', x1: 0, y1: 0, x2: t, y2: 15 * t, color: 'c3', width: 3 },
+        { t: 'emoji', x: t, y: v * t, text: '🚗', dy: -16 }, { t: 'emoji', x: t, y: 15 * t, text: '🚲', dy: -16 } ] }, false, []);
+      $('#wOut').innerHTML = 'After <b>' + N(+t.toFixed(1)) + ' h</b>: car 🚗 <b>' + Math.round(v * t) + ' km</b>, bike 🚲 <b>' + Math.round(15 * t) + ' km</b>. ' +
+        (t >= 3 ? 'The car\'s line (orange) is steeper because it is faster: it gains <b>' + v + ' km every hour</b>.' : '');
+    };
+    $('#wSp').oninput = () => { t = 0; stopAnim(); lessonDraw(); };
+    $('#wGo').onclick = () => {
+      stopAnim(); const t0 = performance.now();
+      const tick = now => { t = Math.min(3, (now - t0) / 1000); lessonDraw(); if (t < 3) anim = requestAnimationFrame(tick); };
+      anim = requestAnimationFrame(tick);
+    };
+  },
+  trip(el) {
+    el.innerHTML = '<canvas class="graph"></canvas>';
+    const cv = el.querySelector('canvas');
+    lessonDraw = () => drawGraph(cv, { xmin: -0.3, xmax: 6.5, ymin: -10, ymax: 150, xLabel: 'hours', yLabel: 'km from home', items: [
+      { t: 'seg', x1: 0, y1: 0, x2: 2, y2: 40, color: 'c1' }, { t: 'seg', x1: 2, y1: 40, x2: 3.5, y2: 40, color: 'c1' }, { t: 'seg', x1: 3.5, y1: 40, x2: 5, y2: 130, color: 'c1' },
+      { t: 'label', x: 1, y: 20, text: 'slow drive', dx: 8, dy: -14, color: 'c2' }, { t: 'label', x: 2.75, y: 40, text: '☕ stopped', dy: -14, color: 'c2' },
+      { t: 'label', x: 4.25, y: 85, text: 'fast! (steep)', dx: 10, color: 'c2' } ] }, false, []);
+  },
+  halfway(el) {
+    el.innerHTML = '<div class="road"><span class="veh" id="vWalk"><span class="flip">🚶</span></span><span class="wall">🧱</span></div>' +
+      '<div class="row"><button class="btn primary" id="wStep">👣 Take a step</button><button class="btn" id="wReset">↺ Start again</button></div><div class="readout" id="wOut"></div>';
+    let d = 16, n = 0, log = [16];
+    const draw = () => {
+      $('#vWalk').style.left = 'calc(' + ((16 - d) / 16 * 86) + '% + 4px)';
+      $('#wOut').innerHTML = 'Distance to the wall: <b>' + N(+d.toFixed(6)) + ' m</b><br><span class="muted">' + log.map(x => N(+x.toFixed(6))).join(' → ') + '</span>' +
+        (n >= 6 ? '<div class="key"><b>Still not touching!</b>The distance gets closer and closer to <b>0</b>, but never actually reaches it. We say the <b>limit</b> is 0.</div>' : '');
+    };
+    lessonDraw = draw;
+    $('#wStep').onclick = () => { d /= 2; n++; log.push(d); if (log.length > 12) log.splice(1, 1, '…'); draw(); };
+    $('#wReset').onclick = () => { d = 16; n = 0; log = [16]; draw(); };
+  },
+  cooling(el) {
+    el.innerHTML = '<canvas class="graph"></canvas>';
+    const cv = el.querySelector('canvas');
+    const f = t => 25 + 65 * Math.exp(-t / 8);
+    lessonDraw = () => drawGraph(cv, { xmin: -1, xmax: 50, ymin: 0, ymax: 100, xLabel: 'minutes', yLabel: '°C', items: [
+      { t: 'line', x: 0, y: 25, slope: 0, color: 'c3', dash: true }, { t: 'label', x: 42, y: 25, text: 'room 25°C', dy: -12, color: 'c3' },
+      { t: 'fn', f, color: 'c2' }, { t: 'emoji', x: 2, y: f(2), text: '🍲', dy: -18 } ] }, false, []);
+  },
+  shrink(el) {
+    el.innerHTML = '<canvas class="graph"></canvas><div class="ctrls"><label>Time gap: <b id="wGV">1</b> s<input type="range" id="wG" min="0" max="4" value="0"></label></div><div class="readout" id="wOut"></div>';
+    const cv = el.querySelector('canvas'), gaps = [1, 0.5, 0.1, 0.01, 0.001];
+    lessonDraw = () => {
+      const h = gaps[+$('#wG').value], s = 4 + h; $('#wGV').textContent = h;
+      drawGraph(cv, { xmin: -0.2, xmax: 3.8, ymin: -0.5, ymax: 13, xLabel: 'seconds', yLabel: 'metres', items: [
+        { t: 'fn', f: x => x >= 0 ? x * x : NaN, color: 'c1' }, { t: 'line', x: 2, y: 4, slope: s, color: 'c2', dash: true },
+        { t: 'pt', x: 2, y: 4, color: 'c2' }, { t: 'pt', x: 2 + h, y: (2 + h) * (2 + h), color: 'c4', r: 4 }, { t: 'emoji', x: 2, y: 4, text: '🏃', dx: -26, dy: -12 } ] }, false, []);
+      $('#wOut').innerHTML = 'A runner speeding up (distance = time × time). Average speed from 2 s to ' + N(2 + h) + ' s = <b>' + N(+s.toFixed(3)) + ' m/s</b>.' +
+        (h <= 0.01 ? '<br>Getting closer and closer to <b>4 m/s</b>. That is the speed <b>right now</b> at 2 s! 🎯' : '<br>Make the gap smaller… where is it heading?') +
+        E('Secant slope ' + m('[f(2+h) − f(2)] ÷ h = 4 + h → 4') + ' as ' + m('h → 0') + '.');
+    };
+    $('#wG').oninput = lessonDraw;
+  },
+  zoom(el) {
+    el.innerHTML = '<canvas class="graph"></canvas><div class="ctrls"><label>Moment: <b id="wTV">1</b> s<input type="range" id="wT" min="0.5" max="3.5" step="0.5" value="1"></label>' +
+      '<label>Zoom: <b id="wZV">1</b>×<input type="range" id="wZ" min="0" max="5" value="0"></label></div><div class="readout" id="wOut"></div>';
+    const cv = el.querySelector('canvas'), zs = [1, 2, 4, 10, 30, 100];
+    const f = t => 20 * t - 5 * t * t, d = t => 20 - 10 * t;
+    lessonDraw = () => {
+      const t0 = +$('#wT').value, z = zs[+$('#wZ').value], y0 = f(t0), v = d(t0);
+      $('#wTV').textContent = t0; $('#wZV').textContent = z;
+      const hx = 2.1 / z, hy = 12 / z;
+      drawGraph(cv, { xmin: t0 - hx, xmax: t0 + hx, ymin: y0 - hy, ymax: y0 + hy, noTicks: z > 1, xLabel: z === 1 ? 'seconds' : '', yLabel: z === 1 ? 'height (m)' : '', items: [
+        { t: 'fn', f: x => (x >= 0 && x <= 4) ? f(x) : NaN, color: 'c1', width: 4 }, { t: 'pt', x: t0, y: y0, color: 'c2' },
+        ...(z >= 10 ? [{ t: 'line', x: t0, y: y0, slope: v, color: 'c3', dash: true }] : []) ] }, false, []);
+      $('#wOut').innerHTML = (z >= 10 ? 'Zoomed in, the curve looks <b>straight</b>! ' : 'Zoom in more to see the curve straighten out… ') +
+        'At ' + t0 + ' s the ball is ' + (v > 0 ? 'going <b>up</b> at <b>' + v + ' m/s</b> ⬆️' : v < 0 ? 'coming <b>down</b> at <b>' + (-v) + ' m/s</b> ⬇️' : 'at the <b>top</b>: speed <b>0</b> ⏸️') + '.' +
+        E(m('h(t) = 20t − 5t², h′(t) = 20 − 10t') + ', so ' + m("h′(" + t0 + ") = " + N(v)) + '.');
+    };
+    el.querySelectorAll('input').forEach(i => i.oninput = lessonDraw);
+  },
+  balltop(el) {
+    el.innerHTML = '<canvas class="graph"></canvas>';
+    const cv = el.querySelector('canvas'), f = t => 20 * t - 5 * t * t;
+    lessonDraw = () => drawGraph(cv, { xmin: -0.2, xmax: 4.2, ymin: -2, ymax: 27, xLabel: 'seconds', yLabel: 'height (m)', items: [
+      { t: 'fn', f: x => (x >= 0 && x <= 4) ? f(x) : NaN, color: 'c1' },
+      { t: 'line', x: 0.7, y: f(0.7), slope: 13, color: 'c3', dash: true, len: 0.5 }, { t: 'line', x: 2, y: 20, slope: 0, color: 'c2', dash: true, len: 0.8 }, { t: 'line', x: 3.3, y: f(3.3), slope: -13, color: 'c4', dash: true, len: 0.5 },
+      { t: 'label', x: 0.7, y: f(0.7), text: '⬆️ +13 m/s', dx: 12, color: 'c3' }, { t: 'label', x: 2, y: 20, text: '⏸️ top: 0 m/s', dy: -16, color: 'c2' }, { t: 'label', x: 3.3, y: f(3.3), text: '⬇️ −13 m/s', dx: 12, color: 'c4' },
+      { t: 'emoji', x: 2, y: 20, text: '⚽', dy: -34 } ] }, false, []);
+  },
+  patterns(el) {
+    el.innerHTML = '<canvas class="graph"></canvas>';
+    const cv = el.querySelector('canvas');
+    lessonDraw = () => drawGraph(cv, { xmin: -0.3, xmax: 5.5, ymin: -1, ymax: 27, xLabel: 'seconds', items: [
+      { t: 'fn', f: x => x >= 0 ? x * x : NaN, color: 'c1' }, { t: 'fn', f: x => x >= 0 ? 2 * x : NaN, color: 'c2' },
+      { t: 'label', x: 4.6, y: 21, text: 'distance', dx: -70, color: 'c1' }, { t: 'label', x: 5, y: 10, text: 'speed = 2 × time', dx: -120, dy: -14, color: 'c2' } ] }, false, []);
+  },
+  rectarea(el) {
+    el.innerHTML = '<canvas class="graph"></canvas><div class="ctrls"><label>Speed: <b id="wSV">60</b> km/h<input type="range" id="wS" min="10" max="100" step="10" value="60"></label>' +
+      '<label>Time: <b id="wHV">2</b> hours<input type="range" id="wH" min="1" max="5" value="2"></label></div><div class="readout" id="wOut"></div>';
+    const cv = el.querySelector('canvas');
+    lessonDraw = () => {
+      const s = +$('#wS').value, h = +$('#wH').value;
+      $('#wSV').textContent = s; $('#wHV').textContent = h;
+      drawGraph(cv, { xmin: -0.3, xmax: 5.6, ymin: -6, ymax: 115, xLabel: 'hours', yLabel: 'speed (km/h)', items: [
+        { t: 'shade', f: () => s, a: 0, b: h }, { t: 'seg', x1: 0, y1: s, x2: h, y2: s, color: 'c1' }, { t: 'emoji', x: h / 2, y: s / 2, text: '🚗' } ] }, false, []);
+      $('#wOut').innerHTML = 'Area = ' + h + ' × ' + s + ' = <b>' + h * s + '</b>. Distance travelled = <b>' + h * s + ' km</b> ✅ Same number!';
+    };
+    el.querySelectorAll('input').forEach(i => i.oninput = lessonDraw);
+  },
+  riemann(el) {
+    el.innerHTML = '<canvas class="graph"></canvas><div class="ctrls"><label>Number of slices: <b id="wNV">4</b><input type="range" id="wN" min="0" max="5" value="1"></label></div><div class="readout" id="wOut"></div>';
+    const cv = el.querySelector('canvas'), ns = [2, 4, 8, 16, 32, 64];
+    lessonDraw = () => {
+      const n = ns[+$('#wN').value], w = 4 / n;
+      $('#wNV').textContent = n;
+      const rects = []; let sum = 0;
+      for (let i = 0; i < n; i++) { const hgt = Math.pow((i + 1) * w, 2); sum += hgt * w; rects.push({ t: 'rect', x: i * w, w, h: hgt, nolabel: n > 8 }); }
+      drawGraph(cv, { xmin: -0.3, xmax: 4.5, ymin: -1, ymax: 18, xLabel: 'seconds', yLabel: 'speed (m/s)', items: [
+        ...rects, { t: 'fn', f: x => x >= 0 ? x * x : NaN, color: 'c1' }, { t: 'emoji', x: 4, y: 16, text: '🚀', dx: 16 } ] }, false, []);
+      $('#wOut').innerHTML = 'Estimate with ' + n + ' slices: <b>' + sum.toFixed(2) + ' m</b>. Exact distance: <b>21.33 m</b>. ' +
+        (n >= 32 ? 'Super close! 🎯 With infinitely many slices you get the exact answer. That is the <b>integral</b>.' : 'Add more slices to get closer!');
+    };
+    $('#wN').oninput = lessonDraw;
+  }
+};
 
 /* ============ state & persistence ============ */
 const SAVE_KEY = 'calculusQuest.v1';
-let save = { stars: {}, xp: 0 };
-try { const s = JSON.parse(localStorage.getItem(SAVE_KEY)); if (s && s.stars) save = s; } catch (e) {}
+let save = { stars: {}, xp: 0, mode: 'kid' };
+try { const s = JSON.parse(localStorage.getItem(SAVE_KEY)); if (s && s.stars) save = Object.assign(save, s); } catch (e) {}
 const persist = () => { try { localStorage.setItem(SAVE_KEY, JSON.stringify(save)); } catch (e) {} };
 const unlocked = i => i === 0 || (i < WORLDS.length - 1 ? !!save.stars[WORLDS[i - 1].id] : WORLDS.slice(0, -1).every(w => save.stars[w.id]));
 
-let S = null; // current run
+let S = null, L = null;
 
 /* ============ screens ============ */
 function show(id) {
+  if (id !== 'lessonScreen') { stopAnim(); lessonDraw = null; }
   document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === id));
   window.scrollTo(0, 0);
 }
@@ -675,13 +1098,14 @@ function updateXP() { $('#xpPill').textContent = '⭐ ' + save.xp + ' XP'; }
 
 function renderMap() {
   updateXP();
+  document.querySelectorAll('.mode-btn').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.mode === save.mode)));
   const box = $('#worlds'); box.innerHTML = '';
   WORLDS.forEach((w, i) => {
     const st = save.stars[w.id] || 0, open = unlocked(i);
     const b = document.createElement('button');
     b.className = 'world'; b.disabled = !open;
     b.innerHTML = '<div class="num">' + (w.id === 'boss' ? 'Boss' : 'World ' + (i + 1)) + '</div><div class="icon">' + (open ? w.icon : '🔒') + '</div>' +
-      '<div class="name">' + w.name + '</div><div class="tag">' + (open ? w.tag : 'Clear the previous world to unlock.') + '</div>' +
+      '<div class="name">' + w.name + '</div><div class="tag">' + (open ? w.tag : 'Finish the world before this one to unlock it.') + '</div>' +
       '<div class="stars">' + '★'.repeat(st) + '<span class="muted">' + '☆'.repeat(3 - st) + '</span></div>';
     b.onclick = () => openLesson(i);
     box.appendChild(b);
@@ -690,23 +1114,37 @@ function renderMap() {
   WORLDS.forEach(w => {
     const li = document.createElement('li'), got = !!save.stars[w.id];
     li.className = got ? '' : 'locked';
-    li.innerHTML = '<b>' + w.icon + ' ' + w.name + '</b>' + (got ? '<span class="m">' + w.formula + '</span>' : '??? — clear this world to reveal');
+    li.innerHTML = '<b>' + w.icon + ' ' + w.name + '</b>' + (got ? w.idea + (ENG() ? '<span class="f m">' + w.formula + '</span>' : '') : '??? Finish this world to unlock this idea.');
     nb.appendChild(li);
   });
   show('mapScreen');
 }
 
 function openLesson(i) {
-  const w = WORLDS[i];
-  $('#lessonBody').innerHTML = '<h1><span class="icon">' + w.icon + '</span>' + w.name + '</h1><p class="muted">🦉 Professor Owl explains…</p>' + w.lesson;
-  $('#lessonStart').onclick = () => startWorld(i);
+  L = { wi: i, step: 0 };
   show('lessonScreen');
+  renderLessonStep();
+}
+
+function renderLessonStep() {
+  stopAnim(); lessonDraw = null;
+  const w = WORLDS[L.wi], st = w.steps[L.step], last = L.step === w.steps.length - 1;
+  $('#lessonBody').innerHTML =
+    '<div class="lesson-head"><span class="icon">' + w.icon + '</span><h1 style="margin:0">' + w.name + '</h1>' +
+    '<div class="dots">' + w.steps.map((_, k) => '<i class="' + (k <= L.step ? 'on' : '') + '"></i>').join('') + '</div></div>' +
+    '<div class="owl">🦉 Professor Owl · part ' + (L.step + 1) + ' of ' + w.steps.length + '</div>' +
+    '<h2>' + st.title + '</h2>' + st.html + (st.widget ? '<div class="widget" id="widget"></div>' : '') +
+    (last ? '<details class="math"' + (ENG() ? ' open' : '') + '><summary>🎓 ' + (ENG() ? 'The math version' : 'Curious? See how mathematicians write this') + '</summary><div>' + w.math + '</div></details>' : '');
+  if (st.widget) { WIDGETS[st.widget]($('#widget')); if (lessonDraw) lessonDraw(); }
+  $('#lessonBack').textContent = L.step === 0 ? '← Map' : '← Back';
+  $('#lessonNext').textContent = last ? 'Start the challenge →' : 'Next →';
+  window.scrollTo(0, 0);
 }
 
 function buildQuestions(w) {
-  const count = w.count || 6;
-  const pool = w.gens || WORLDS.filter(x => x.gens).flatMap(x => x.gens);
-  // cycle through generators in shuffled order so every question type appears
+  const count = w.count || (ENG() ? 8 : 6);
+  const worlds = w.gens ? [w] : WORLDS.filter(x => x.gens);
+  const pool = worlds.flatMap(x => x.gens.concat(ENG() ? x.engGens : []));
   const order = []; while (order.length < count) order.push(...shuffle(pool.slice()));
   return order.slice(0, count).map(g => g());
 }
@@ -730,16 +1168,13 @@ function renderQuestion() {
   renderHUD();
   $('#qnum').textContent = S.w.name + ' · Question ' + (S.i + 1) + ' of ' + S.qs.length;
   $('#prompt').innerHTML = q.prompt;
-  // table
   const tw = $('#tableWrap');
   if (q.table) {
     tw.style.display = '';
     tw.innerHTML = '<table class="vals"><tr>' + q.table.head.map(h => '<th>' + h + '</th>').join('') + '</tr>' +
       q.table.rows.map(r => '<tr>' + r.map((c, j) => j === 0 ? '<th>' + c + '</th>' : (typeof c === 'object' ? '<td class="hl">' + c.v + '</td>' : '<td>' + c + '</td>')).join('') + '</tr>').join('') + '</table>';
   } else { tw.style.display = 'none'; tw.innerHTML = ''; }
-  // graph
   $('#graph').style.display = q.graph ? 'block' : 'none';
-  // answers
   const area = $('#answerArea'); area.innerHTML = '';
   if (q.type === 'mc') {
     const box = document.createElement('div'); box.className = 'choices';
@@ -752,8 +1187,8 @@ function renderQuestion() {
     area.appendChild(box);
   } else {
     S.slope = 0;
-    area.innerHTML = '<div class="slider-box"><div class="slider-val">Slope of orange line: <b class="m" id="slopeVal">0</b></div>' +
-      '<input type="range" id="slope" min="' + q.min + '" max="' + q.max + '" step="' + q.step + '" value="0" aria-label="Slope">' +
+    area.innerHTML = '<div class="slider-box"><div class="slider-val">Tilt of the orange ski: <b class="m" id="slopeVal">0</b> <span class="muted" style="font-size:.85rem">(+ = uphill ↗, − = downhill ↘)</span></div>' +
+      '<input type="range" id="slope" min="' + q.min + '" max="' + q.max + '" step="' + q.step + '" value="0" aria-label="Tilt">' +
       '<div><button class="btn primary" id="checkBtn">Check ✔</button></div></div>';
     $('#slope').oninput = e => { S.slope = +e.target.value; $('#slopeVal').textContent = N(S.slope); drawCurrent(); };
     $('#checkBtn').onclick = answerSlider;
@@ -766,24 +1201,24 @@ function renderQuestion() {
 }
 
 function drawCurrent() {
+  if (lessonDraw && $('#lessonScreen').classList.contains('active')) return lessonDraw();
   if (!S || !$('#playScreen').classList.contains('active')) return;
   const q = S.qs[S.i];
   if (!q.graph) return;
   const extra = [];
-  if (q.type === 'slider') extra.push({ t: 'line', x: q.x0, y: q.y0, slope: S.slope, color: 'c2', width: 3 });
+  if (q.type === 'slider') extra.push({ t: 'line', x: q.x0, y: q.y0, slope: S.slope, color: 'c2', width: 4, len: 1.6 });
   drawGraph($('#graph'), q.graph, q.revealed, extra);
 }
 
 const CHEERS = ['Brilliant! 🎉', 'Nailed it! ✨', 'Correct! 🦉', 'Great thinking! 🧠', 'Yes! 🚀', 'Spot on! 🎯'];
-const OOPS = ['Not quite.', 'Almost — let\'s see why.', 'Oops! Here\'s the idea:'];
+const OOPS = ['Not quite.', 'Almost! Let\'s see why.', 'Oops! Here\'s the idea:'];
 
 function finishAnswer(correct, extraMsg) {
   const q = S.qs[S.i];
   S.locked = true; q.revealed = true;
   if (correct) {
     S.streak++; S.best = Math.max(S.best, S.streak);
-    const gain = (S.hintUsed ? 5 : 10) + (S.streak >= 3 ? 5 : 0);
-    S.xp += gain;
+    S.xp += (S.hintUsed ? 5 : 10) + (S.streak >= 3 ? 5 : 0);
   } else {
     S.streak = 0; S.mistakes++; S.hearts--;
   }
@@ -813,7 +1248,7 @@ function answerSlider() {
   const q = S.qs[S.i];
   const correct = Math.abs(S.slope - q.target) < 1e-6;
   $('#slope').disabled = true; $('#checkBtn').disabled = true;
-  finishAnswer(correct, correct ? '' : 'Your line had slope ' + N(S.slope) + (S.slope > q.target ? ' (too steep upward).' : ' (not steep enough upward).'));
+  finishAnswer(correct, correct ? '' : 'Your tilt was ' + N(S.slope) + (S.slope > q.target ? ' (too much uphill).' : ' (too much downhill).'));
 }
 
 function next() {
@@ -827,21 +1262,20 @@ function showResult(passed) {
   $('#bar').style.width = '100%';
   const body = $('#resultBody');
   if (!passed) {
-    body.innerHTML = '<h1>Out of hearts 💔</h1><p class="muted">No worries — mistakes are how mathematicians learn. Review the lesson and try again with new questions.</p>' +
-      '<div class="row"><button class="btn" id="rMap">Map</button><button class="btn" id="rLesson">Review lesson</button><button class="btn primary" id="rRetry">Try again</button></div>';
+    body.innerHTML = '<h1>Out of hearts 💔</h1><p class="muted">No worries. Mistakes are how everyone learns! Look at the story again, then try new questions.</p>' +
+      '<div class="row"><button class="btn" id="rMap">Map</button><button class="btn" id="rLesson">See the story again</button><button class="btn primary" id="rRetry">Try again</button></div>';
   } else {
     const stars = S.mistakes === 0 ? 3 : S.mistakes === 1 ? 2 : 1;
-    const bonus = stars * 10;
-    S.xp += bonus;
+    S.xp += stars * 10;
     const first = !save.stars[S.w.id];
     save.stars[S.w.id] = Math.max(save.stars[S.w.id] || 0, stars);
     save.xp += S.xp; persist(); updateXP();
     const hasNext = S.wi < WORLDS.length - 1;
-    body.innerHTML = '<h1>' + (S.w.id === 'boss' ? 'You defeated the Calculus Dragon! 🐉🏆' : S.w.name + ' cleared! 🎉') + '</h1>' +
+    body.innerHTML = '<h1>' + (S.w.id === 'boss' ? 'You beat the Calculus Dragon! 🐉🏆' : S.w.name + ' finished! 🎉') + '</h1>' +
       '<div class="big-stars pop">' + '★'.repeat(stars) + '<span class="muted">' + '☆'.repeat(3 - stars) + '</span></div>' +
       '<p><b>+' + S.xp + ' XP</b> · mistakes: ' + S.mistakes + ' · best streak: ' + S.best + '</p>' +
-      (first ? '<div class="key" style="text-align:left"><b>📓 New notebook entry</b><span class="m">' + S.w.formula + '</span></div>' : '') +
-      (stars < 3 ? '<p class="muted">Replay with zero mistakes for 3 stars!</p>' : '') +
+      (first ? '<div class="key" style="text-align:left"><b>📓 New big idea in your notebook</b>' + S.w.idea + (ENG() ? '<br><span class="m">' + S.w.formula + '</span>' : '') + '</div>' : '') +
+      (stars < 3 ? '<p class="muted">Play again with zero mistakes for 3 stars!</p>' : '') +
       '<div class="row"><button class="btn" id="rMap">Map</button><button class="btn" id="rRetry">Play again</button>' +
       (hasNext ? '<button class="btn primary" id="rNext">Next world →</button>' : '') + '</div>';
     if (hasNext) $('#rNext').onclick = () => openLesson(S.wi + 1);
@@ -860,6 +1294,10 @@ function niceStep(span) {
 function drawGraph(cv, g, revealed, extra) {
   const w = cv.clientWidth, h = cv.clientHeight;
   if (!w || !h) return;
+  if (g.equal) { // same scale on both axes, anchored bottom-left
+    const u = Math.min(w / (g.xmax - g.xmin), h / (g.ymax - g.ymin));
+    g = Object.assign({}, g, { xmax: g.xmin + w / u, ymax: g.ymin + h / u });
+  }
   const dpr = window.devicePixelRatio || 1;
   cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr);
   const ctx = cv.getContext('2d');
@@ -868,27 +1306,33 @@ function drawGraph(cv, g, revealed, extra) {
   const col = n => css.getPropertyValue('--' + n).trim();
   const X = x => (x - g.xmin) / (g.xmax - g.xmin) * w;
   const Y = y => h - (y - g.ymin) / (g.ymax - g.ymin) * h;
+  const FONT = '11px system-ui, sans-serif';
   ctx.clearRect(0, 0, w, h);
-  ctx.font = '11px system-ui, sans-serif';
+  ctx.font = FONT;
 
-  // grid + ticks
   const sx = niceStep(g.xmax - g.xmin), sy = niceStep(g.ymax - g.ymin);
   ctx.lineWidth = 1; ctx.strokeStyle = col('grid'); ctx.beginPath();
   for (let x = Math.ceil(g.xmin / sx) * sx; x <= g.xmax; x += sx) { ctx.moveTo(X(x), 0); ctx.lineTo(X(x), h); }
   for (let y = Math.ceil(g.ymin / sy) * sy; y <= g.ymax; y += sy) { ctx.moveTo(0, Y(y)); ctx.lineTo(w, Y(y)); }
   ctx.stroke();
-  ctx.strokeStyle = col('axis'); ctx.lineWidth = 1.5; ctx.beginPath();
   const ax = Math.min(Math.max(Y(0), 0), h), ay = Math.min(Math.max(X(0), 0), w);
-  ctx.moveTo(0, ax); ctx.lineTo(w, ax); ctx.moveTo(ay, 0); ctx.lineTo(ay, h); ctx.stroke();
+  if (!g.noTicks || g.equal) {
+    ctx.strokeStyle = col('axis'); ctx.lineWidth = 1.5; ctx.beginPath();
+    ctx.moveTo(0, ax); ctx.lineTo(w, ax);
+    if (!g.equal) { ctx.moveTo(ay, 0); ctx.lineTo(ay, h); }
+    ctx.stroke();
+  }
   ctx.fillStyle = col('muted');
-  ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-  for (let x = Math.ceil(g.xmin / sx) * sx; x <= g.xmax; x += sx) if (Math.abs(x) > 1e-9 && X(x) > 12 && X(x) < w - 12) ctx.fillText(N(+x.toFixed(6)), X(x), Math.min(ax + 4, h - 14));
-  ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
-  for (let y = Math.ceil(g.ymin / sy) * sy; y <= g.ymax; y += sy) if (Math.abs(y) > 1e-9 && Y(y) > 8 && Y(y) < h - 8) ctx.fillText(N(+y.toFixed(6)), Math.max(ay - 4, 22), Y(y));
-  if (g.xLabel) { ctx.textAlign = 'right'; ctx.textBaseline = 'bottom'; ctx.fillText(g.xLabel, w - 6, ax - 4); }
-  if (g.yLabel) { ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.fillText(g.yLabel, ay + 6, 6); }
+  if (!g.noTicks) {
+    ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    for (let x = Math.ceil(g.xmin / sx) * sx; x <= g.xmax; x += sx) if (Math.abs(x) > 1e-9 && X(x) > 12 && X(x) < w - 12) ctx.fillText(N(+x.toFixed(6)), X(x), Math.min(ax + 4, h - 14));
+    ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+    for (let y = Math.ceil(g.ymin / sy) * sy; y <= g.ymax; y += sy) if (Math.abs(y) > 1e-9 && Y(y) > 8 && Y(y) < h - 8) ctx.fillText(N(+y.toFixed(6)), Math.max(ay - 4, 22), Y(y));
+  }
+  if (g.xLabel) { ctx.textAlign = 'right'; ctx.textBaseline = 'bottom'; ctx.fillText(g.xLabel + ' →', w - 6, Math.max(ax - 4, 14)); }
+  if (g.yLabel) { ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.fillText('↑ ' + g.yLabel, Math.min(ay + 6, w - 120), 6); }
 
-  const layer = { shade: 0, rect: 0, fn: 1, vline: 1, line: 2, seg: 2, hole: 3, pt: 3, label: 4 };
+  const layer = { shade: 0, rect: 0, poly: 0, fn: 1, vline: 1, line: 2, seg: 2, hole: 3, pt: 3, label: 4, emoji: 4 };
   const items = [...(g.items || []), ...(revealed ? g.reveal || [] : []), ...extra].sort((a, b) => layer[a.t] - layer[b.t]);
   ctx.save(); ctx.beginPath(); ctx.rect(0, 0, w, h); ctx.clip();
   for (const it of items) {
@@ -905,12 +1349,16 @@ function drawGraph(cv, g, revealed, extra) {
         }
         ctx.stroke(); break;
       }
-      case 'line': {
+      case 'line': { // through (x, y) with given slope; `len` limits it to a short piece of that x-width each side
         const f = x => it.y + it.slope * (x - it.x);
-        ctx.beginPath(); ctx.moveTo(X(g.xmin), Y(f(g.xmin))); ctx.lineTo(X(g.xmax), Y(f(g.xmax))); ctx.stroke(); break;
+        const a = it.len ? it.x - it.len : g.xmin, b = it.len ? it.x + it.len : g.xmax;
+        ctx.beginPath(); ctx.moveTo(X(a), Y(f(a))); ctx.lineTo(X(b), Y(f(b))); ctx.stroke(); break;
       }
       case 'vline': ctx.setLineDash([3, 4]); ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(X(it.x), 0); ctx.lineTo(X(it.x), h); ctx.stroke(); break;
       case 'seg': ctx.beginPath(); ctx.moveTo(X(it.x1), Y(it.y1)); ctx.lineTo(X(it.x2), Y(it.y2)); ctx.stroke(); break;
+      case 'poly':
+        ctx.beginPath(); it.pts.forEach(([x, y], k) => k ? ctx.lineTo(X(x), Y(y)) : ctx.moveTo(X(x), Y(y))); ctx.closePath();
+        ctx.globalAlpha = 0.3; ctx.fill(); ctx.globalAlpha = 1; ctx.stroke(); break;
       case 'shade': {
         ctx.fillStyle = col(it.color || 'shade'); ctx.globalAlpha = 0.28; ctx.beginPath(); ctx.moveTo(X(it.a), Y(0));
         for (let i = 0; i <= 200; i++) { const x = it.a + (it.b - it.a) * i / 200; ctx.lineTo(X(x), Y(it.f(x))); }
@@ -921,17 +1369,20 @@ function drawGraph(cv, g, revealed, extra) {
         ctx.fillStyle = rc; ctx.strokeStyle = rc; ctx.lineWidth = 1.5; ctx.globalAlpha = 0.25;
         ctx.fillRect(X(it.x), Y(it.h), X(it.x + it.w) - X(it.x), Y(0) - Y(it.h)); ctx.globalAlpha = 1;
         ctx.strokeRect(X(it.x), Y(it.h), X(it.x + it.w) - X(it.x), Y(0) - Y(it.h));
-        ctx.fillStyle = col('ink'); ctx.textAlign = 'center'; ctx.textBaseline = 'bottom'; ctx.font = '12px system-ui, sans-serif';
-        ctx.fillText('h=' + it.h, X(it.x + it.w / 2), Y(it.h) - 3); ctx.font = '11px system-ui, sans-serif'; break;
+        if (!it.nolabel) { ctx.fillStyle = col('ink'); ctx.textAlign = 'center'; ctx.textBaseline = 'bottom'; ctx.font = '12px system-ui, sans-serif'; ctx.fillText(N(+it.h.toFixed(2)), X(it.x + it.w / 2), Y(it.h) - 3); ctx.font = FONT; }
+        break;
       }
       case 'hole': ctx.setLineDash([]); ctx.lineWidth = 2.5; ctx.fillStyle = col('panel'); ctx.beginPath(); ctx.arc(X(it.x), Y(it.y), 6, 0, 7); ctx.fill(); ctx.stroke(); break;
       case 'pt':
-        ctx.beginPath(); ctx.arc(X(it.x), Y(it.y), 6, 0, 7); ctx.fill();
-        if (it.label) { ctx.fillStyle = col('ink'); ctx.font = '600 13px system-ui, sans-serif'; ctx.textAlign = 'left'; ctx.textBaseline = 'bottom'; ctx.fillText(it.label, X(it.x) + 8, Y(it.y) - 6); ctx.font = '11px system-ui, sans-serif'; }
+        ctx.beginPath(); ctx.arc(X(it.x), Y(it.y), it.r || 6, 0, 7); ctx.fill();
+        if (it.label) { ctx.fillStyle = col('ink'); ctx.font = '600 13px system-ui, sans-serif'; ctx.textAlign = 'left'; ctx.textBaseline = 'bottom'; ctx.fillText(it.label, X(it.x) + 8, Y(it.y) - 6); ctx.font = FONT; }
         break;
       case 'label':
-        ctx.font = '600 12px system-ui, sans-serif'; ctx.textAlign = it.dx ? 'left' : 'center'; ctx.textBaseline = 'middle';
-        ctx.fillText(it.text, X(it.x) + (it.dx || 0), Y(it.y) + (it.dy || 0)); ctx.font = '11px system-ui, sans-serif'; break;
+        ctx.font = '600 13px system-ui, sans-serif'; ctx.textAlign = it.dx ? 'left' : 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText(it.text, X(it.x) + (it.dx || 0), Y(it.y) + (it.dy || 0)); ctx.font = FONT; break;
+      case 'emoji':
+        ctx.font = (it.size || 26) + 'px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText(it.text, X(it.x) + (it.dx || 0), Y(it.y) + (it.dy || 0)); ctx.font = FONT; break;
     }
   }
   ctx.restore(); ctx.setLineDash([]);
@@ -939,11 +1390,13 @@ function drawGraph(cv, g, revealed, extra) {
 
 /* ============ wiring ============ */
 $('#home').onclick = renderMap;
-$('#lessonBack').onclick = renderMap;
+$('#lessonBack').onclick = () => { if (L.step === 0) renderMap(); else { L.step--; renderLessonStep(); } };
+$('#lessonNext').onclick = () => { if (L.step === WORLDS[L.wi].steps.length - 1) startWorld(L.wi); else { L.step++; renderLessonStep(); } };
 $('#quitBtn').onclick = () => { if (confirm('Leave this world? Progress in this round will be lost.')) renderMap(); };
 $('#nextBtn').onclick = next;
 $('#hintBtn').onclick = () => { S.hintUsed = true; $('#hint').classList.add('show'); $('#hintBtn').style.display = 'none'; };
-$('#resetBtn').onclick = () => { if (confirm('Erase all stars and XP?')) { save = { stars: {}, xp: 0 }; persist(); renderMap(); } };
+$('#resetBtn').onclick = () => { if (confirm('Erase all stars and XP?')) { save = { stars: {}, xp: 0, mode: save.mode }; persist(); renderMap(); } };
+document.querySelectorAll('.mode-btn').forEach(b => b.onclick = () => { save.mode = b.dataset.mode; persist(); renderMap(); });
 $('#themeBtn').onclick = () => {
   const r = document.documentElement;
   const dark = r.dataset.theme ? r.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
