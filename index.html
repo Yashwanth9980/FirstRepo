@@ -65,6 +65,12 @@
   .mode-btn b { display: block; font-size: 1.05rem; }
   .mode-btn small { color: var(--muted); }
   .mode-btn[aria-pressed="true"] { border-color: var(--accent); background: var(--eng-bg); }
+  .race3d { display: flex; align-items: center; gap: 14px; margin-top: 16px; padding: 14px 16px; border-radius: var(--radius); border: 2px solid var(--accent); background: var(--eng-bg); color: var(--ink); text-decoration: none; }
+  .race3d:hover { transform: translateY(-2px); }
+  .race3d .icon { font-size: 2rem; }
+  .race3d b { display: block; }
+  .race3d small { color: var(--muted); }
+  .race3d .go { margin-left: auto; font-weight: 700; color: var(--accent); white-space: nowrap; }
   .worlds { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; margin-top: 16px; }
   .world {
     text-align: left; border: 1px solid var(--line); background: var(--panel); color: var(--ink);
@@ -190,6 +196,7 @@
         <button class="mode-btn" data-mode="eng"><b>🎓 Engineer</b><small>The same stories, plus the math and formula questions.</small></button>
       </div>
     </div>
+    <a class="race3d" href="3d.html"><span class="icon">🏎️</span><span><b>NEW · Race Track in 3D</b><small>Drive a car and feel "speed right now" (the derivative). Bonus mode.</small></span><span class="go">Play →</span></a>
     <div class="worlds" id="worlds"></div>
     <div class="panel notebook">
       <h2>📓 Big Ideas Notebook</h2>

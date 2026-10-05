@@ -9,6 +9,14 @@ Play online: https://yashwanth9980.github.io/FirstRepo/. Or just open `index.htm
 - **🧒 Explorer (age 10+)**: everything is explained with stories: skate ramps, cars, taps, cooling soup, a thrown ball, rockets. No formulas.
 - **🎓 Engineer**: the same stories, plus the math notation and extra formula questions (power rule, limits, antiderivatives, the Fundamental Theorem).
 
+## 🏎️ Bonus: Race Track in 3D (`3d.html`)
+A 3D driving game reached from the home screen. The car steers itself, and you control only the speed (GO/BRAKE buttons, or ↑/↓). A live distance graph shows that **speed right now = steepness of the graph** (the derivative).
+1. **Learn to drive**: speed up and stop, and watch the line get steeper and then flat.
+2. **Speed checkpoints**: pass each arch at the exact speed written on it.
+3. **Chase the ghost car**: copy a ghost car's speeds so your graph line matches its line.
+
+Needs internet the first time (it loads the free Three.js 3D library) and a browser with WebGL.
+
 ## How it plays
 Each world starts with a short **interactive story lesson** from Professor Owl (sliders, animations, things to try), then the questions. You get **3 hearts** per world. Finish a world to unlock the next and add a "big idea" to your notebook.
 

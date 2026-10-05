@@ -1,0 +1,540 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Calculus Race Track 3D</title>
+<style>
+  :root {
+    --panel: rgba(255,255,255,.92); --ink: #1f2430; --muted: #5f6675; --line: #e2ded4;
+    --accent: #3b5bdb; --accent-ink: #fff; --good: #2b8a3e; --good-bg: #e6f4ea; --bad: #c92a2a; --bad-bg: #fdecec;
+    --warn-bg: #fff6dd; --eng-bg: #eef1fd; --bg: #f6f4ef; --c-you: #e8590c; --c-ghost: #3b5bdb; --grid: #ece8de; --axis: #8a8f9c;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --panel: rgba(31,34,41,.92); --ink: #eceef3; --muted: #a2a8b6; --line: #3a3f4b;
+      --accent: #7b93ff; --accent-ink: #11131a; --good: #69db7c; --good-bg: #1d3324; --bad: #ff8787; --bad-bg: #3a1f22;
+      --warn-bg: #3a3320; --eng-bg: #232a40; --bg: #15171c; --c-you: #ff922b; --c-ghost: #7b93ff; --grid: #2f333d; --axis: #7d8494;
+    }
+  }
+  :root[data-theme="dark"] {
+    --panel: rgba(31,34,41,.92); --ink: #eceef3; --muted: #a2a8b6; --line: #3a3f4b;
+    --accent: #7b93ff; --accent-ink: #11131a; --good: #69db7c; --good-bg: #1d3324; --bad: #ff8787; --bad-bg: #3a1f22;
+    --warn-bg: #3a3320; --eng-bg: #232a40; --bg: #15171c; --c-you: #ff922b; --c-ghost: #7b93ff; --grid: #2f333d; --axis: #7d8494;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #9fd3f5; color: var(--ink);
+    font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; -webkit-user-select: none; user-select: none; }
+  #scene { position: fixed; inset: 0; display: block; width: 100%; height: 100%; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; backdrop-filter: blur(6px); }
+  .btn { font: inherit; font-weight: 600; border-radius: 10px; padding: 10px 18px; cursor: pointer; border: 1px solid var(--line); background: var(--panel); color: var(--ink); }
+  .btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+  .btn:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+  .m { font-family: "Cambria Math", "STIX Two Math", Georgia, serif; }
+
+  /* HUD */
+  #hud { position: fixed; inset: 0; pointer-events: none; display: none; }
+  #hud.on { display: block; }
+  #mission { position: absolute; left: 12px; top: 12px; max-width: min(420px, calc(100vw - 190px)); pointer-events: auto; }
+  #mission .title { font-size: .75rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 700; }
+  #mission .text { font-size: 1.02rem; margin-top: 2px; }
+  #mission .row { display: flex; gap: 8px; margin-top: 8px; }
+  #speedo { position: absolute; right: 12px; top: 12px; width: 160px; text-align: center; padding: 8px; }
+  #speedo canvas { width: 140px; height: 90px; display: block; margin: 0 auto; }
+  #speedo .num { font-size: 1.9rem; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
+  #speedo .unit { font-size: .8rem; color: var(--muted); }
+  #graphCard { position: absolute; right: 12px; bottom: 12px; width: min(380px, calc(100vw - 24px)); padding: 8px 10px; }
+  #graphCard .lbl { font-size: .78rem; color: var(--muted); display: flex; gap: 12px; flex-wrap: wrap; }
+  #graphCard .lbl i { display: inline-block; width: 14px; height: 3px; vertical-align: middle; margin-right: 4px; border-radius: 2px; }
+  #graph { width: 100%; height: 150px; display: block; }
+  #pedals { position: absolute; left: 12px; bottom: 12px; display: flex; gap: 10px; pointer-events: auto; }
+  .pedal { width: 92px; height: 92px; border-radius: 18px; font: inherit; font-weight: 800; font-size: 1rem; border: 0; color: #fff; cursor: pointer; touch-action: none; box-shadow: 0 4px 0 rgba(0,0,0,.25); }
+  .pedal.gas { background: #2b8a3e; }
+  .pedal.brake { background: #c92a2a; }
+  .pedal.down { transform: translateY(3px); box-shadow: 0 1px 0 rgba(0,0,0,.25); filter: brightness(1.1); }
+  .pedal small { display: block; font-weight: 600; font-size: .7rem; opacity: .85; }
+  #toast { position: absolute; left: 50%; top: 32%; transform: translate(-50%, -50%); font-size: 1.5rem; font-weight: 800; padding: 10px 18px; display: none; text-align: center; }
+  #toast.show { display: block; animation: pop .4s ease; }
+  #count { position: absolute; left: 50%; top: 40%; transform: translate(-50%, -50%); font-size: 5rem; font-weight: 900; color: #fff; text-shadow: 0 4px 12px rgba(0,0,0,.4); display: none; }
+  @keyframes pop { 0% { transform: translate(-50%, -50%) scale(.5); opacity: 0; } 70% { transform: translate(-50%, -50%) scale(1.1); } 100% { transform: translate(-50%, -50%) scale(1); opacity: 1; } }
+  @media (max-width: 640px) {
+    #graph { height: 110px; }
+    #graphCard { bottom: 116px; }
+    .pedal { width: 80px; height: 80px; }
+    #speedo { width: 120px; } #speedo canvas { width: 108px; height: 70px; } #speedo .num { font-size: 1.5rem; }
+    #mission { max-width: calc(100vw - 150px); } #mission .text { font-size: .92rem; }
+  }
+
+  /* Overlays */
+  .overlay { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; padding: 16px; background: rgba(10,14,24,.35); overflow-y: auto; }
+  .overlay.on { display: flex; }
+  .overlay .card { max-width: 620px; width: 100%; padding: 22px; max-height: calc(100vh - 32px); overflow-y: auto; }
+  h1 { font-size: 1.6rem; margin: 0 0 .3em; line-height: 1.2; }
+  h2 { font-size: 1.25rem; margin: 0 0 .4em; }
+  p { margin: 0 0 .7em; }
+  .muted { color: var(--muted); }
+  .missions { display: grid; gap: 10px; margin: 14px 0; }
+  .mbtn { text-align: left; font: inherit; color: var(--ink); background: var(--bg); border: 2px solid var(--line); border-radius: 12px; padding: 12px 14px; cursor: pointer; display: flex; gap: 12px; align-items: center; }
+  .mbtn:hover { border-color: var(--accent); }
+  .mbtn .ic { font-size: 1.8rem; }
+  .mbtn b { display: block; }
+  .mbtn small { color: var(--muted); }
+  .mbtn .st { margin-left: auto; letter-spacing: 2px; white-space: nowrap; }
+  .key { background: var(--warn-bg); border-radius: 10px; padding: 10px 14px; margin: 10px 0; }
+  .eng { background: var(--eng-bg); border-radius: 10px; padding: 8px 12px; margin: 10px 0; font-size: .95rem; }
+  .big-stars { font-size: 2.6rem; letter-spacing: 6px; text-align: center; margin: 4px 0 10px; }
+  .list { margin: 8px 0; padding: 0; list-style: none; display: grid; gap: 4px; }
+  .list li { padding: 6px 10px; border-radius: 8px; }
+  .list li.ok { background: var(--good-bg); } .list li.no { background: var(--bad-bg); }
+  .rowb { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+  .spacer { flex: 1; }
+  a.btn { text-decoration: none; display: inline-block; }
+</style>
+</head>
+<body>
+<canvas id="scene"></canvas>
+
+<div id="hud">
+  <div id="mission" class="card">
+    <div class="title" id="mTitle"></div>
+    <div class="text" id="mText"></div>
+    <div class="row"><button class="btn" id="menuBtn" style="padding:4px 10px;font-size:.85rem">☰ Menu</button></div>
+  </div>
+  <div id="speedo" class="card"><canvas id="dial"></canvas><div class="num" id="spd">0</div><div class="unit">km/h · speed right now</div></div>
+  <div id="graphCard" class="card">
+    <div class="lbl"><span><i style="background:var(--c-you)"></i>your distance</span><span id="ghostLbl"><i style="background:var(--c-ghost)"></i>ghost car</span><span>dashed = speed right now (steepness)</span></div>
+    <canvas id="graph"></canvas>
+  </div>
+  <div id="pedals">
+    <button class="pedal brake" id="brake">BRAKE<small>↓ or S</small></button>
+    <button class="pedal gas" id="gas">GO<small>↑ or W</small></button>
+  </div>
+  <div id="toast" class="card"></div>
+  <div id="count"></div>
+</div>
+
+<div class="overlay on" id="menu">
+  <div class="card">
+    <h1>🏎️ Calculus Race Track <span class="muted" style="font-size:1rem">3D</span></h1>
+    <p>Drive a car around a 3D track and discover <b>"speed right now"</b>: how fast you are going at one exact moment. Mathematicians call it the <b>derivative</b>.</p>
+    <p class="muted">Controls: hold <b>GO</b> to speed up and <b>BRAKE</b> to slow down. On a keyboard use ↑/↓ or W/S. The car steers itself, so you only control its speed.</p>
+    <div class="missions" id="missionList"></div>
+    <div class="rowb"><a class="btn" href="index.html">← Back to Calculus Quest</a></div>
+  </div>
+</div>
+
+<div class="overlay" id="result"><div class="card" id="resultBody"></div></div>
+
+<div class="overlay" id="nogl">
+  <div class="card">
+    <h1>3D isn't available here 😕</h1>
+    <p>This device or browser can't show 3D graphics (WebGL is turned off or not supported), or the 3D library couldn't be downloaded. Try another browser, like Chrome, or check your internet connection.</p>
+    <div class="rowb"><a class="btn primary" href="index.html">← Play Calculus Quest (2D)</a></div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+"use strict";
+const $ = s => document.querySelector(s);
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const pick = a => a[Math.floor(Math.random() * a.length)];
+
+// Share mode (Explorer/Engineer) and theme with the 2D game
+let ENG = false;
+try { ENG = (JSON.parse(localStorage.getItem('calculusQuest.v1')) || {}).mode === 'eng'; } catch (e) {}
+try { const t = localStorage.getItem('calculusQuest.theme'); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+const E = s => ENG ? '<div class="eng">🎓 ' + s + '</div>' : '';
+
+const SAVE_KEY = 'calculusQuest.3d';
+let save = { stars: {} };
+try { const s = JSON.parse(localStorage.getItem(SAVE_KEY)); if (s && s.stars) save = s; } catch (e) {}
+const persist = () => { try { localStorage.setItem(SAVE_KEY, JSON.stringify(save)); } catch (e) {} };
+
+/* ================= track geometry ================= */
+const SL = 120, R = 40, W = 6;           // straight length, curve radius, half track width (metres)
+const PER = 2 * SL + 2 * Math.PI * R;     // one lap ≈ 491 m
+function trackAt(s) {                     // position + heading at distance s along the track
+  s = ((s % PER) + PER) % PER;
+  if (s < SL) return { x: -SL / 2 + s, z: -R, h: 0 };
+  s -= SL;
+  if (s < Math.PI * R) { const t = s / R; return { x: SL / 2 + R * Math.sin(t), z: -R * Math.cos(t), h: t }; }
+  s -= Math.PI * R;
+  if (s < SL) return { x: SL / 2 - s, z: R, h: Math.PI };
+  s -= SL;
+  const t = s / R; return { x: -SL / 2 - R * Math.sin(t), z: R * Math.cos(t), h: Math.PI + t };
+}
+
+/* ================= 3D scene ================= */
+let renderer, scene, camera, car, ghost, wheels = [], arches = [];
+function initScene() {
+  renderer = new THREE.WebGLRenderer({ canvas: $('#scene'), antialias: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x9fd3f5);
+  scene.fog = new THREE.Fog(0x9fd3f5, 120, 420);
+  camera = new THREE.PerspectiveCamera(60, 1, 0.5, 1000);
+  scene.add(new THREE.HemisphereLight(0xffffff, 0x5a7a3a, 0.85));
+  const sun = new THREE.DirectionalLight(0xffffff, 0.6); sun.position.set(60, 120, 40); scene.add(sun);
+
+  const ground = new THREE.Mesh(new THREE.PlaneGeometry(1200, 1200), new THREE.MeshLambertMaterial({ color: 0x6cbf4f }));
+  ground.rotation.x = -Math.PI / 2; scene.add(ground);
+
+  // road ribbon
+  const N = 240, pos = [], idx = [];
+  for (let i = 0; i <= N; i++) {
+    const p = trackAt(PER * i / N), nx = -Math.sin(p.h), nz = Math.cos(p.h);
+    pos.push(p.x + nx * W, 0.02, p.z + nz * W, p.x - nx * W, 0.02, p.z - nz * W);
+    if (i < N) { const a = 2 * i; idx.push(a, a + 1, a + 2, a + 1, a + 3, a + 2); }
+  }
+  const rg = new THREE.BufferGeometry();
+  rg.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); rg.setIndex(idx); rg.computeVertexNormals();
+  scene.add(new THREE.Mesh(rg, new THREE.MeshLambertMaterial({ color: 0x4a4f5a, side: THREE.DoubleSide })));
+
+  // kerbs and centre dashes
+  const dashG = new THREE.BoxGeometry(3, 0.05, 0.3), dashM = new THREE.MeshLambertMaterial({ color: 0xffffff });
+  const kerbG = new THREE.BoxGeometry(2.6, 0.12, 0.8), kerbR = new THREE.MeshLambertMaterial({ color: 0xd9372b }), kerbW = new THREE.MeshLambertMaterial({ color: 0xf2f2f2 });
+  for (let s = 0, k = 0; s < PER; s += 3, k++) {
+    const p = trackAt(s), nx = -Math.sin(p.h), nz = Math.cos(p.h);
+    for (const side of [1, -1]) {
+      const kb = new THREE.Mesh(kerbG, k % 2 ? kerbR : kerbW);
+      kb.position.set(p.x + nx * (W + 0.4) * side, 0.06, p.z + nz * (W + 0.4) * side); kb.rotation.y = -p.h; scene.add(kb);
+    }
+    if (k % 3 === 0) { const d = new THREE.Mesh(dashG, dashM); d.position.set(p.x, 0.05, p.z); d.rotation.y = -p.h; scene.add(d); }
+  }
+  // start / finish line
+  const cv = document.createElement('canvas'); cv.width = 64; cv.height = 256;
+  const cx = cv.getContext('2d');
+  for (let i = 0; i < 2; i++) for (let j = 0; j < 8; j++) { cx.fillStyle = (i + j) % 2 ? '#111' : '#fff'; cx.fillRect(i * 32, j * 32, 32, 32); }
+  const fin = new THREE.Mesh(new THREE.PlaneGeometry(2, W * 2), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(cv) }));
+  const p0 = trackAt(0); fin.rotation.x = -Math.PI / 2; fin.position.set(p0.x, 0.06, p0.z); scene.add(fin);
+
+  // scenery: trees away from the track, a few hills, a grandstand
+  const trunkM = new THREE.MeshLambertMaterial({ color: 0x8b5a2b }), leafMs = [0x2f8f3a, 0x3fa34d, 0x267a31].map(c => new THREE.MeshLambertMaterial({ color: c }));
+  const samples = []; for (let i = 0; i < 120; i++) samples.push(trackAt(PER * i / 120));
+  let placed = 0, tries = 0;
+  while (placed < 90 && tries++ < 2000) {
+    const x = (Math.random() - 0.5) * 360, z = (Math.random() - 0.5) * 260;
+    if (samples.some(p => Math.hypot(p.x - x, p.z - z) < W + 9)) continue;
+    const s = 0.8 + Math.random() * 0.8, tr = new THREE.Group();
+    const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.5, 3, 6), trunkM); trunk.position.y = 1.5; tr.add(trunk);
+    const leaf = new THREE.Mesh(new THREE.ConeGeometry(2.4, 6, 7), pick(leafMs)); leaf.position.y = 5.5; tr.add(leaf);
+    tr.position.set(x, 0, z); tr.scale.setScalar(s); scene.add(tr); placed++;
+  }
+  const hillM = new THREE.MeshLambertMaterial({ color: 0x7aa86a });
+  [[-260, -220, 70], [40, -300, 90], [280, -180, 60], [-300, 200, 80], [250, 260, 75]].forEach(([x, z, r]) => {
+    const h = new THREE.Mesh(new THREE.ConeGeometry(r, r * 0.8, 8), hillM); h.position.set(x, r * 0.4, z); scene.add(h);
+  });
+  const stand = new THREE.Group(), standM = new THREE.MeshLambertMaterial({ color: 0x5c6bc0 });
+  for (let i = 0; i < 4; i++) { const st = new THREE.Mesh(new THREE.BoxGeometry(40, 1.5, 3), standM); st.position.set(0, 0.75 + i * 1.5, -R - 16 - i * 3); stand.add(st); }
+  scene.add(stand);
+
+  car = makeCar(0xe8590c, 1); scene.add(car);
+  ghost = makeCar(0x3b5bdb, 0.45); ghost.visible = false; scene.add(ghost);
+  resize();
+}
+function makeCar(color, opacity) {
+  const g = new THREE.Group();
+  const mat = new THREE.MeshLambertMaterial({ color, transparent: opacity < 1, opacity });
+  const body = new THREE.Mesh(new THREE.BoxGeometry(4.2, 0.9, 2), mat); body.position.y = 0.85; g.add(body);
+  const cab = new THREE.Mesh(new THREE.BoxGeometry(2, 0.8, 1.7), new THREE.MeshLambertMaterial({ color: 0xdfe9f5, transparent: opacity < 1, opacity })); cab.position.set(-0.3, 1.65, 0); g.add(cab);
+  const wg = new THREE.CylinderGeometry(0.45, 0.45, 0.4, 12), wm = new THREE.MeshLambertMaterial({ color: 0x222222, transparent: opacity < 1, opacity });
+  [[1.3, 1], [1.3, -1], [-1.3, 1], [-1.3, -1]].forEach(([x, z]) => {
+    const w = new THREE.Mesh(wg, wm); w.rotation.x = Math.PI / 2; w.position.set(x, 0.45, z); g.add(w); if (opacity === 1) wheels.push(w);
+  });
+  return g;
+}
+function placeOnTrack(obj, s, lane) {
+  const p = trackAt(s);
+  obj.position.set(p.x - Math.sin(p.h) * lane, 0, p.z + Math.cos(p.h) * lane);
+  obj.rotation.y = -p.h;
+  return p;
+}
+function makeArch(s, target) {
+  const g = new THREE.Group(), postM = new THREE.MeshLambertMaterial({ color: 0xffd43b });
+  for (const z of [W + 1, -W - 1]) { const post = new THREE.Mesh(new THREE.BoxGeometry(0.6, 6, 0.6), postM); post.position.set(0, 3, z); g.add(post); }
+  const cv = document.createElement('canvas'); cv.width = 512; cv.height = 128;
+  const c = cv.getContext('2d');
+  c.fillStyle = '#1f2430'; c.fillRect(0, 0, 512, 128); c.fillStyle = '#ffd43b'; c.fillRect(0, 0, 512, 10); c.fillRect(0, 118, 512, 10);
+  c.fillStyle = '#fff'; c.font = 'bold 76px system-ui, sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(target + ' km/h', 256, 66);
+  // thin board across the road; its two big faces (±x) look along the track and carry the speed
+  const faceMat = new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(cv) });
+  const sign = new THREE.Mesh(new THREE.BoxGeometry(0.4, 3, (W + 1.3) * 2), [faceMat, faceMat, postM, postM, postM, postM]);
+  sign.position.y = 6.5; g.add(sign);
+  placeOnTrack(g, s, 0);
+  scene.add(g);
+  return g;
+}
+function clearArches() { arches.forEach(a => scene.remove(a)); arches = []; }
+
+/* ================= game state ================= */
+const G = { running: false, t: 0, s: 0, v: 0, gas: false, brake: false, hist: [], mission: null, ms: null, countdown: 0, toastT: 0 };
+const CAR_LANE = 1.8, GHOST_LANE = -2.6;
+const ACC = 22, BRK = 45, DRAG = 3, VMAX = 120;   // km/h per second
+
+function toast(html, good) {
+  const t = $('#toast'); t.innerHTML = html; t.className = 'card show'; t.style.color = good === undefined ? '' : good ? 'var(--good)' : 'var(--bad)';
+  G.toastT = 1.8;
+}
+function setMission(title, text) { $('#mTitle').innerHTML = title; $('#mText').innerHTML = text; }
+
+/* ---------- Mission 1: learn to drive ---------- */
+const M1 = {
+  id: 'm1', icon: '🚗', name: 'Learn to drive', desc: 'Speed up, then stop. Watch the graph get steeper, then flat.',
+  start() { G.ms = { step: 0, wait: 0 }; ghost.visible = false; $('#ghostLbl').style.display = 'none'; },
+  steps: [
+    { text: 'Hold <b>GO</b> (or ↑) to start driving. 🟢', done: () => G.v > 5 },
+    { text: 'Keep going until the speedometer says <b>60 km/h</b>. Watch the orange line on the graph get <b>steeper</b>.', done: () => G.v >= 60 },
+    { text: 'Great! Now hold <b>BRAKE</b> (or ↓) until the car <b>stops</b>. 🔴', done: () => G.v < 0.5 },
+    { text: 'Stopped! Look at the graph: the line is now <b>flat</b>. Flat = distance not changing = speed 0.', done: () => G.ms.wait > 4 }
+  ],
+  update(dt) {
+    const st = this.steps[G.ms.step];
+    if (G.ms.step === 3) G.ms.wait += dt;
+    setMission('Mission 1 · step ' + (G.ms.step + 1) + ' of 4', st.text);
+    if (st.done()) {
+      if (G.ms.step === 1) toast('60 km/h! 🚀', true);
+      G.ms.step++;
+      if (G.ms.step === this.steps.length) finish(this, 3,
+        '<p>You just saw the big idea:</p><div class="key">🚀 <b>Faster</b> → the distance line is <b>steeper</b>.<br>🛑 <b>Stopped</b> → the line is <b>flat</b>.<br>📏 The steepness at one moment is your <b>speed right now</b>.</div>' +
+        '<p>The dashed line on the graph shows that steepness at each moment. Your speedometer shows the same thing as a number!</p>' +
+        E('Distance ' + '<span class="m">s(t)</span>, speed <span class="m">v(t) = ds/dt</span>: the derivative is the slope of the tangent to the distance graph.'));
+    }
+  }
+};
+
+/* ---------- Mission 2: speed checkpoints ---------- */
+const CP_S = [90, 190, 280, 370, 460];
+const M2 = {
+  id: 'm2', icon: '🚩', name: 'Speed checkpoints', desc: 'Drive through each arch at the speed written on it (±6 km/h).',
+  start() {
+    const targets = shuffle([30, 40, 50, 60, 70, 80, 90]).slice(0, CP_S.length);
+    G.ms = { targets, next: 0, results: [] };
+    clearArches(); CP_S.forEach((s, i) => arches.push(makeArch(s, targets[i])));
+    ghost.visible = false; $('#ghostLbl').style.display = 'none';
+  },
+  update() {
+    const ms = G.ms;
+    if (ms.next < CP_S.length && G.s >= CP_S[ms.next]) {
+      const tgt = ms.targets[ms.next], v = Math.round(G.v), ok = Math.abs(v - tgt) <= 6;
+      ms.results.push({ tgt, v, ok });
+      toast((ok ? '✅ ' : '❌ ') + v + ' km/h<br><span style="font-size:1rem">target ' + tgt + (ok ? '. Nice!' : v > tgt ? ' (too fast)' : ' (too slow)') + '</span>', ok);
+      arches[ms.next].visible = false;
+      ms.next++;
+    }
+    if (ms.next < CP_S.length) {
+      const d = Math.max(0, Math.round(CP_S[ms.next] - G.s));
+      setMission('Mission 2 · arch ' + (ms.next + 1) + ' of ' + CP_S.length, 'Next arch: be at <b>' + ms.targets[ms.next] + ' km/h</b> in <b>' + d + ' m</b>. ' + (G.v < ms.targets[ms.next] - 6 ? 'Speed up! 🟢' : G.v > ms.targets[ms.next] + 6 ? 'Slow down! 🔴' : 'Perfect, hold it! 👌'));
+    } else if (G.toastT <= 0.4) {
+      const hits = ms.results.filter(r => r.ok).length;
+      const stars = hits === 5 ? 3 : hits === 4 ? 2 : hits >= 2 ? 1 : 0;
+      finish(this, stars,
+        '<ul class="list">' + ms.results.map((r, i) => '<li class="' + (r.ok ? 'ok' : 'no') + '">' + (r.ok ? '✅' : '❌') + ' Arch ' + (i + 1) + ': target ' + r.tgt + ', you had <b>' + r.v + ' km/h</b></li>').join('') + '</ul>' +
+        '<div class="key">Each arch checked your speed at <b>one exact moment</b>, not your average speed for the trip. That "speed right now" is exactly what calculus calls the <b>derivative</b>.</div>' +
+        E('At each arch you matched <span class="m">v(tᵢ) = s′(tᵢ)</span>, the instantaneous rate of change of distance.'));
+    }
+  }
+};
+
+/* ---------- Mission 3: chase the ghost ---------- */
+const PLANS = [
+  [[6, 36], [4, 0], [6, 72]],
+  [[5, 54], [5, 18], [5, 90]],
+  [[4, 72], [4, 0], [4, 36], [4, 72]],
+  [[6, 18], [6, 54], [4, 90]]
+];
+// The ghost aims for each stage's speed but speeds up / brakes at the same rates as your car,
+// so a perfect driver can match it exactly. Precompute its speed and distance every GDT seconds.
+const GDT = 0.05;
+function simulateGhost(plan) {
+  const vs = [0], ss = [0], total = plan.reduce((a, p) => a + p[0], 0);
+  let v = 0, s = 0;
+  for (let i = 1; i * GDT <= total + 1e-9; i++) {
+    let t = (i - 1) * GDT, tgt = 0;
+    for (const [dur, sv] of plan) { if (t < dur) { tgt = sv; break; } t -= dur; }
+    v = tgt > v ? Math.min(tgt, v + ACC * GDT) : Math.max(tgt, v - BRK * GDT);
+    s += v / 3.6 * GDT; vs.push(v); ss.push(s);
+  }
+  return { vs, ss };
+}
+const ghostAt = (arr, t) => { const i = clamp(t / GDT, 0, arr.length - 1), a = Math.floor(i), b = Math.min(a + 1, arr.length - 1); return arr[a] + (arr[b] - arr[a]) * (i - a); };
+const ghostDist = (sim, t) => ghostAt(sim.ss, t);
+const ghostSpeed = (sim, t) => ghostAt(sim.vs, t);
+const M3 = {
+  id: 'm3', icon: '👻', name: 'Chase the ghost car', desc: 'Copy the ghost car\'s speeds so your graph line matches its line.',
+  start() {
+    const plan = pick(PLANS), total = plan.reduce((a, p) => a + p[0], 0);
+    G.ms = { plan, sim: simulateGhost(plan), total, err: 0, n: 0 };
+    ghost.visible = true; $('#ghostLbl').style.display = '';
+    G.countdown = 3.5;
+  },
+  update(dt) {
+    const ms = G.ms, gs = Math.round(ghostSpeed(ms.sim, G.t)), gd = ghostDist(ms.sim, G.t);
+    placeOnTrack(ghost, gd, GHOST_LANE);
+    const diff = G.s - gd;
+    setMission('Mission 3 · ' + Math.max(0, Math.ceil(ms.total - G.t)) + ' s left', 'Ghost speed now: <b>' + gs + ' km/h</b>' + (gs === 0 ? ' (stopped!)' : '') + '. ' +
+      (Math.abs(diff) < 4 ? 'Right beside it! 👌' : diff < 0 ? 'You are <b>' + Math.round(-diff) + ' m behind</b>. 🟢' : 'You are <b>' + Math.round(diff) + ' m ahead</b>. 🔴'));
+    ms.err += Math.abs(diff) * dt; ms.n += dt;
+    if (G.t >= ms.total) {
+      const avg = ms.err / ms.n, stars = avg < 5 ? 3 : avg < 12 ? 2 : avg < 25 ? 1 : 0;
+      finish(this, stars,
+        '<p>On average you were <b>' + avg.toFixed(1) + ' m</b> away from the ghost.</p>' +
+        '<div class="key">To keep your line on top of the ghost\'s line, you had to match its <b>steepness</b> at every moment. Steep part = fast, flat part = stopped. Matching steepness = matching <b>speed right now</b>.</div>' +
+        E('Two distance functions with the same derivative at every t (and the same start) are the same function. Speed determines distance.'));
+    }
+  }
+};
+const MISSIONS = [M1, M2, M3];
+
+function startMission(M) {
+  G.mission = M; G.t = 0; G.s = 0; G.v = 0; G.hist = [[0, 0]]; G.countdown = 0;
+  clearArches();
+  M.start();
+  $('#menu').classList.remove('on'); $('#result').classList.remove('on'); $('#hud').classList.add('on');
+  G.running = true;
+}
+function finish(M, stars, html) {
+  G.running = false; G.gas = G.brake = false;
+  if (stars > (save.stars[M.id] || 0)) { save.stars[M.id] = stars; persist(); }
+  const idx = MISSIONS.indexOf(M), nextM = MISSIONS[idx + 1];
+  $('#resultBody').innerHTML = '<h1>' + M.icon + ' ' + M.name + (stars ? ' complete!' : '') + '</h1>' +
+    '<div class="big-stars">' + '★'.repeat(stars) + '<span class="muted">' + '☆'.repeat(3 - stars) + '</span></div>' + html +
+    (stars < 3 ? '<p class="muted">Try again for 3 stars!</p>' : '') +
+    '<div class="rowb"><button class="btn" id="rMenu">☰ Missions</button><button class="btn" id="rAgain">↺ Try again</button><span class="spacer"></span>' +
+    (nextM ? '<button class="btn primary" id="rNext">Next: ' + nextM.name + ' →</button>' : '<a class="btn primary" href="index.html">Back to Calculus Quest →</a>') + '</div>';
+  $('#result').classList.add('on');
+  $('#rMenu').onclick = showMenu;
+  $('#rAgain').onclick = () => startMission(M);
+  if (nextM) $('#rNext').onclick = () => startMission(nextM);
+}
+function showMenu() {
+  G.running = false; G.mission = null; G.gas = G.brake = false;
+  $('#result').classList.remove('on'); $('#hud').classList.remove('on');
+  const list = $('#missionList'); list.innerHTML = '';
+  MISSIONS.forEach((M, i) => {
+    const st = save.stars[M.id] || 0;
+    const b = document.createElement('button'); b.className = 'mbtn';
+    b.innerHTML = '<span class="ic">' + M.icon + '</span><span><b>Mission ' + (i + 1) + ': ' + M.name + '</b><small>' + M.desc + '</small></span><span class="st">' + '★'.repeat(st) + '<span class="muted">' + '☆'.repeat(3 - st) + '</span></span>';
+    b.onclick = () => startMission(M);
+    list.appendChild(b);
+  });
+  $('#menu').classList.add('on');
+}
+
+/* ================= HUD drawing ================= */
+const css = () => { const st = getComputedStyle(document.documentElement); return { getPropertyValue: n => st.getPropertyValue(n).trim() }; };
+function fitCanvas(cv) {
+  const w = cv.clientWidth, h = cv.clientHeight, dpr = window.devicePixelRatio || 1;
+  if (cv.width !== Math.round(w * dpr) || cv.height !== Math.round(h * dpr)) { cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); }
+  const c = cv.getContext('2d'); c.setTransform(dpr, 0, 0, dpr, 0, 0); c.clearRect(0, 0, w, h);
+  return [c, w, h];
+}
+function drawDial() {
+  const [c, w, h] = fitCanvas($('#dial')), st = css();
+  const cx = w / 2, cy = h - 6, r = Math.min(w / 2, h) - 8, a0 = Math.PI, a1 = 2 * Math.PI;
+  c.lineWidth = 10; c.lineCap = 'round';
+  c.strokeStyle = st.getPropertyValue('--grid'); c.beginPath(); c.arc(cx, cy, r, a0, a1); c.stroke();
+  c.strokeStyle = st.getPropertyValue('--c-you'); c.beginPath(); c.arc(cx, cy, r, a0, a0 + Math.PI * G.v / VMAX); c.stroke();
+  const a = a0 + Math.PI * G.v / VMAX;
+  c.strokeStyle = st.getPropertyValue('--ink'); c.lineWidth = 3; c.beginPath(); c.moveTo(cx, cy); c.lineTo(cx + Math.cos(a) * (r - 8), cy + Math.sin(a) * (r - 8)); c.stroke();
+  c.fillStyle = st.getPropertyValue('--muted'); c.font = '10px system-ui'; c.textAlign = 'center';
+  for (const v of [0, 30, 60, 90, 120]) { const b = a0 + Math.PI * v / VMAX; c.fillText(v, cx + Math.cos(b) * (r - 18), cy + Math.sin(b) * (r - 18) + 3); }
+  $('#spd').textContent = Math.round(G.v);
+}
+function drawGraph() {
+  const [c, w, h] = fitCanvas($('#graph')), st = css(), col = n => st.getPropertyValue(n).trim();
+  const M = G.mission, plan = M === M3 ? G.ms.sim : null;
+  const tmax = plan ? G.ms.total : Math.max(20, Math.ceil((G.t + 3) / 10) * 10);
+  let smax = Math.max(50, G.s * 1.15);
+  if (plan) smax = Math.max(smax, ghostDist(plan, tmax) * 1.1);
+  const pl = 34, pb = 18, X = t => pl + t / tmax * (w - pl - 6), Y = s => h - pb - s / smax * (h - pb - 6);
+  c.strokeStyle = col('--grid'); c.lineWidth = 1; c.fillStyle = col('--muted'); c.font = '10px system-ui';
+  const ts = tmax <= 20 ? 5 : 10;
+  for (let t = 0; t <= tmax; t += ts) { c.beginPath(); c.moveTo(X(t), 4); c.lineTo(X(t), h - pb); c.stroke(); c.textAlign = 'center'; c.fillText(t + 's', X(t), h - 5); }
+  const ss = smax > 400 ? 100 : smax > 150 ? 50 : 20;
+  for (let s = 0; s <= smax; s += ss) { c.beginPath(); c.moveTo(pl, Y(s)); c.lineTo(w - 6, Y(s)); c.stroke(); c.textAlign = 'right'; c.fillText(s + 'm', pl - 4, Y(s) + 3); }
+  c.strokeStyle = col('--axis'); c.beginPath(); c.moveTo(pl, 4); c.lineTo(pl, h - pb); c.lineTo(w - 6, h - pb); c.stroke();
+  if (plan) {
+    c.strokeStyle = col('--c-ghost'); c.lineWidth = 3; c.globalAlpha = 0.55; c.beginPath();
+    for (let i = 0; i <= 120; i++) { const t = tmax * i / 120; i ? c.lineTo(X(t), Y(ghostDist(plan, t))) : c.moveTo(X(t), Y(0)); }
+    c.stroke(); c.globalAlpha = 1;
+  }
+  c.strokeStyle = col('--c-you'); c.lineWidth = 3; c.beginPath();
+  G.hist.forEach(([t, s], i) => i ? c.lineTo(X(t), Y(s)) : c.moveTo(X(t), Y(s))); c.stroke();
+  // tangent: steepness right now
+  const sl = G.v / 3.6, dtw = tmax * 0.12;
+  c.setLineDash([5, 4]); c.lineWidth = 2; c.strokeStyle = col('--ink'); c.beginPath();
+  c.moveTo(X(Math.max(0, G.t - dtw)), Y(G.s - sl * Math.min(dtw, G.t))); c.lineTo(X(G.t + dtw), Y(G.s + sl * dtw)); c.stroke(); c.setLineDash([]);
+  c.fillStyle = col('--c-you'); c.beginPath(); c.arc(X(G.t), Y(G.s), 4, 0, 7); c.fill();
+}
+
+/* ================= loop ================= */
+let last = performance.now(), camPos = null;
+function frame(now) {
+  const dt = Math.min(0.05, (now - last) / 1000); last = now;
+  if (G.running) {
+    if (G.countdown > 0) {
+      G.countdown -= dt;
+      const cd = $('#count'); cd.style.display = 'block'; cd.textContent = G.countdown > 0.5 ? Math.ceil(G.countdown - 0.5) : 'GO!';
+      setMission('Mission 3 · get ready', 'Stay next to the <b>blue ghost car</b>. Your orange line should cover its blue line on the graph.');
+      placeOnTrack(ghost, 0, GHOST_LANE);
+    } else {
+      $('#count').style.display = 'none';
+      if (G.gas) G.v += ACC * dt;
+      if (G.brake) G.v -= BRK * dt;
+      if (!G.gas && !G.brake) G.v -= DRAG * dt;
+      G.v = clamp(G.v, 0, VMAX);
+      G.s += G.v / 3.6 * dt; G.t += dt;
+      const lastH = G.hist[G.hist.length - 1];
+      if (G.t - lastH[0] > 0.1) G.hist.push([G.t, G.s]);
+      G.mission.update(dt);
+    }
+    if (G.toastT > 0) { G.toastT -= dt; if (G.toastT <= 0) $('#toast').className = 'card'; }
+    drawDial(); drawGraph();
+  }
+  // car + chase camera
+  const p = placeOnTrack(car, G.s, CAR_LANE);
+  wheels.forEach(w => w.rotation.y -= G.v / 3.6 * dt / 0.45);
+  const dir = new THREE.Vector3(Math.cos(p.h), 0, Math.sin(p.h));
+  const want = new THREE.Vector3(p.x, 0, p.z).addScaledVector(dir, -13).add(new THREE.Vector3(0, 6, 0));
+  if (!camPos) camPos = want.clone(); else camPos.lerp(want, 1 - Math.exp(-dt * 4));
+  if (!G.running && !G.mission) { // menu: slow orbit around the track
+    const a = now / 9000; camPos.set(Math.cos(a) * 150, 60, Math.sin(a) * 110); camera.position.copy(camPos); camera.lookAt(0, 0, 0);
+  } else { camera.position.copy(camPos); camera.lookAt(p.x + dir.x * 8, 1.5, p.z + dir.z * 8); }
+  renderer.render(scene, camera);
+  requestAnimationFrame(frame);
+}
+function resize() {
+  const w = window.innerWidth, h = window.innerHeight;
+  renderer.setSize(w, h, false); camera.aspect = w / h; camera.fov = w < h ? 75 : 60; camera.updateProjectionMatrix();
+}
+
+/* ================= input ================= */
+function bindPedal(el, key) {
+  const on = e => { e.preventDefault(); G[key] = true; el.classList.add('down'); };
+  const off = () => { G[key] = false; el.classList.remove('down'); };
+  el.addEventListener('pointerdown', on); el.addEventListener('pointerup', off); el.addEventListener('pointerleave', off); el.addEventListener('pointercancel', off);
+  el.addEventListener('contextmenu', e => e.preventDefault());
+}
+bindPedal($('#gas'), 'gas'); bindPedal($('#brake'), 'brake');
+const KEYS = { ArrowUp: 'gas', KeyW: 'gas', ArrowDown: 'brake', KeyS: 'brake', Space: 'brake' };
+addEventListener('keydown', e => { const k = KEYS[e.code]; if (k && G.running) { G[k] = true; $('#' + k).classList.add('down'); e.preventDefault(); } });
+addEventListener('keyup', e => { const k = KEYS[e.code]; if (k) { G[k] = false; $('#' + k).classList.remove('down'); } });
+addEventListener('blur', () => { G.gas = G.brake = false; });
+$('#menuBtn').onclick = showMenu;
+addEventListener('resize', () => renderer && resize());
+
+/* ================= boot ================= */
+try {
+  if (typeof THREE === 'undefined') throw new Error('three.js not loaded');
+  initScene();
+  showMenu();
+  requestAnimationFrame(frame);
+} catch (e) {
+  console.warn(e);
+  $('#menu').classList.remove('on'); $('#nogl').classList.add('on');
+}
+</script>
+</body>
+</html>
